@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -26,6 +27,15 @@ public class SwaggerConfig implements WebMvcConfigurer{
 			.apis(RequestHandlerSelectors.basePackage("com.assc.dolbot"))
 			.paths(PathSelectors.ant("/api/v1/**"))
 			.build().apiInfo(apiInfo());
+	}
+
+	// 없으면 whitelabel 뜸.
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("swagger-ui.html")
+			.addResourceLocations("classpath:/META-INF/resources/");
+		registry.addResourceHandler("/webjars/**")
+			.addResourceLocations("classpath:/META-INF/resources/webjars/");
 	}
 
 	private ApiInfo apiInfo() {

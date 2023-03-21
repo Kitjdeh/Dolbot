@@ -1,13 +1,10 @@
 package com.assc.dolbot.service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,13 +21,34 @@ public class ScheduleInfoServiceImpl implements ScheduleInfoService{
 
 	@Override
 	public void addScheduleInfo(ScheduleInfoDto scheduleInfoDto) throws Exception {
-		scheduleInfoRepository.save(scheduleInfoDto.toEntity());
+		Date scheduleTime = scheduleInfoDto.getScheduleTime();
+		// LocalDateTime localDateTime = scheduleTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+		// LocalDateTime updatedDateTime = localDateTime.minusHours(9);
+		// ZonedDateTime zonedDateTime = updatedDateTime.atZone(ZoneId.systemDefault());
+		// scheduleTime = Date.from(zonedDateTime.toInstant());
+		LocalDate startDate = scheduleInfoDto.getStartDate();
+		LocalDate endDate = scheduleInfoDto.getEndDate();
+
+		// startDate부터 endDate까지 반복
+		for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(scheduleTime);
+			cal.set(Calendar.YEAR, date.getYear());
+			cal.set(Calendar.MONTH, date.getMonthValue()-1);
+			cal.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
+			scheduleTime = cal.getTime();
+			scheduleInfoDto.setScheduleTime(scheduleTime);
+			System.out.println("cal" + cal.toString());
+			System.out.println("cal.get"+cal.getTime());
+			System.out.println("st"+scheduleTime);
+			System.out.println("dto"+scheduleInfoDto);
+			scheduleInfoRepository.save(scheduleInfoDto.toEntity());
+		}
 	}
 
 	@Override
-	public List<ScheduleInfoDto> findScheduleInfoList(int homeId, Map<String, String> map) throws Exception {
-		LocalDate date = LocalDate.parse(map.get("date"), DateTimeFormatter.ISO_DATE);
-		List<ScheduleInfo> list = scheduleInfoRepository.findByHomeIdAndDate(homeId, date);
+	public List<ScheduleInfoDto> findScheduleInfoList(int homeId, LocalDate localDate) throws Exception {
+		List<ScheduleInfo> list = scheduleInfoRepository.findByHomeIdAndDate(homeId, localDate);
 		List<ScheduleInfoDto> dtoList = new ArrayList<>();
 		for(int i=0; i<list.size(); i++){
 			dtoList.add(list.get(i).toDto());
@@ -38,9 +56,15 @@ public class ScheduleInfoServiceImpl implements ScheduleInfoService{
 		return dtoList;
 	}
 
+	// 모든 entity 추가후 save 한번으로 업데이트 가능한지 확인 필요!!
 	@Override
-	public void modifyScheduleInfo(ScheduleInfoDto scheduleInfoDto) throws Exception {
-		scheduleInfoRepository.save(scheduleInfoDto.toEntity());
+	public void modifyScheduleInfo(int scheduleInfoId, ScheduleInfoDto scheduleInfoDto) throws Exception {
+		scheduleInfoDto.setScheduleId(scheduleInfoId);
+		ScheduleInfo scheduleInfo = scheduleInfoRepository.findById(scheduleInfoId).get();
+		scheduleInfo.setContent(scheduleInfoDto.getContent());
+		scheduleInfo.setScheduleTime(scheduleInfoDto.getScheduleTime());
+		System.out.println(scheduleInfo);
+		scheduleInfoRepository.save(scheduleInfo);
 	}
 
 	@Override
@@ -48,37 +72,4 @@ public class ScheduleInfoServiceImpl implements ScheduleInfoService{
 		scheduleInfoRepository.deleteById(scheduleId);
 	}
 
-	// // 강의 노트 찾기
-	// @Override
-	// public LectureNoteDto findLectureNote(int lectureNoteId) {
-	// 	Optional<LectureNote> lectureNoteWrapper = lectureNoteRepository.findByQuestionId(lectureNoteId);
-	// 	if(lectureNoteWrapper.isPresent()){
-	// 		LectureNote lectureNote = lectureNoteWrapper.get();
-	// 		LectureNoteDto dto = LectureNoteDto.builder()
-	// 			.lectureNoteId(lectureNote.getLectureNoteId())
-	// 			.questionId(lectureNote.getQuestionId())
-	// 			.lectureTime(lectureNote.getLectureTime())
-	// 			.pdfUrl(lectureNote.getPdfUrl())
-	// 			.build();
-	// 		return dto;
-	// 	}
-	// 	return null;
-	// }
-	//
-	// // 강의 노트 삽입, 수정
-	// @Override
-	// @Transactional
-	// public void saveLectureNote(LectureNoteDto lectureNoteDto) {
-	// 	lectureNoteRepository.save(lectureNoteDto.toEntity());
-	// }
-	//
-	// // 강의 노트 제거
-	// @Override
-	// public void removeLectureNote(int lectureNoteId) {
-	// 	Optional<LectureNote> lectureNoteWrapper = lectureNoteRepository.findById(lectureNoteId);
-	// 	if(lectureNoteWrapper.isPresent()){
-	// 		LectureNote lectureNote = lectureNoteWrapper.get();
-	// 		lectureNoteRepository.deleteById(lectureNote.getLectureNoteId());
-	// 	}
-	// }
 }

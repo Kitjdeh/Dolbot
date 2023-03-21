@@ -1,10 +1,11 @@
 package com.assc.dolbot.controller;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,31 +32,34 @@ public class ScheduleInfoController {
 			return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
 		}catch(Exception e){
 			System.out.println("FAIL");
-			return new ResponseEntity<>(FAIL, HttpStatus.OK);
+			e.printStackTrace();
+			System.out.println(scheduleInfoDto);
+			return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	// 날짜에 맞는 스케줄 불러오기
 	// Map 구성요소 : date
 	@GetMapping("/{home_id}")
-	public ResponseEntity<List<ScheduleInfoDto>> scheduleInfoList(@PathVariable("home_id") int homeId, @RequestBody Map<String, String> map){
+	public ResponseEntity<List<ScheduleInfoDto>> scheduleInfoList(@PathVariable("home_id") int homeId, @RequestParam("localDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate localDate){
+
 		List<ScheduleInfoDto> list = new ArrayList<>();
 		try{
-			list = scheduleInfoService.findScheduleInfoList(homeId, map);
+			list = scheduleInfoService.findScheduleInfoList(homeId, localDate);
 			return new ResponseEntity<List<ScheduleInfoDto>>(list, HttpStatus.OK);
 		}catch(Exception e){
-			return new ResponseEntity<List<ScheduleInfoDto>>(list, HttpStatus.OK);
+			return new ResponseEntity<List<ScheduleInfoDto>>(list, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	// 스케줄 수정하기
 	@PatchMapping("/{schedule_id}")
-	public ResponseEntity<String> scheduleInfoModify(@RequestBody ScheduleInfoDto scheduleInfoDto){
+	public ResponseEntity<String> scheduleInfoModify(@PathVariable("schedule_id") int scheduleInfoId, @RequestBody ScheduleInfoDto scheduleInfoDto){
 		try{
-			scheduleInfoService.modifyScheduleInfo(scheduleInfoDto);
+			scheduleInfoService.modifyScheduleInfo(scheduleInfoId, scheduleInfoDto);
 			return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
 		}catch(Exception e){
-			return new ResponseEntity<>(FAIL, HttpStatus.OK);
+			return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -66,7 +70,7 @@ public class ScheduleInfoController {
 			scheduleInfoService.removeScheduleInfo(scheduleInfoId);
 			return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
 		}catch(Exception e){
-			return new ResponseEntity<>(FAIL, HttpStatus.OK);
+			return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 }

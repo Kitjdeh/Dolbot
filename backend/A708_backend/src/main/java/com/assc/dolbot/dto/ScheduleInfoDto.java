@@ -1,8 +1,9 @@
 package com.assc.dolbot.dto;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.assc.dolbot.entity.ScheduleInfo;
 
@@ -22,9 +23,12 @@ import lombok.ToString;
 public class ScheduleInfoDto {
 	private int scheduleId;
 	private int homeId;
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private Date scheduleTime;
 	private String content;
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private LocalDate startDate;
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private LocalDate endDate;
 
 	public ScheduleInfo toEntity(){

@@ -5,6 +5,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,6 +15,7 @@ import javax.persistence.TemporalType;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.assc.dolbot.dto.ScheduleInfoDto;
 
@@ -21,28 +23,35 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
+@EntityListeners(AuditingEntityListener.class)
 @Getter
+@Setter
 @Entity
 @Table(name="schedule_info")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class ScheduleInfo {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int scheduleId;
 
-	@Column
+	@Column(nullable = false)
 	private int homeId;
 
 	@Temporal(TemporalType.TIMESTAMP)
+	@Column(nullable = false)
 	private Date scheduleTime;
 
-	@Column
+	@Column(nullable = false)
 	private String content;
 
 	@CreatedDate
+	@Column(updatable = false, nullable = false)
 	private LocalDateTime createdAt;
 
 	@LastModifiedDate

@@ -25,7 +25,7 @@ CREATE TABLE user_home (
   user_id INT UNSIGNED NOT NULL,
   home_id INT UNSIGNED NOT NULL,
   nickname VARCHAR(50) NOT NULL,
-  is_alarm BOOLEAN NOT NULL,
+  is_alarm BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES user_info(user_id),
@@ -117,10 +117,10 @@ VALUES (1, 'Living Room'),
        (2, 'Bedroom'),
        (3, 'Kitchen');
 
-INSERT INTO user_home (user_id, home_id, nickname, is_alarm)
-VALUES (1, 1, 'Living Room', 1),
-       (2, 2, 'Bedroom', 0),
-       (1, 3, 'Kitchen', 1);
+INSERT INTO user_home (user_id, home_id, nickname)
+VALUES (1, 1, 'Living Room'),
+       (2, 2, 'Bedroom'),
+       (1, 3, 'Kitchen');
 
 INSERT INTO schedule_info (home_id, schedule_time, content)
 VALUES (1, '2023-03-22 08:00:00', 'Clean living room'),
@@ -171,4 +171,8 @@ SELECT * FROM schedule_info;
 
 select current_date, current_timestamp from dual;
 
+select * from user_info;
+
 select * from home;
+
+select * from user_home;

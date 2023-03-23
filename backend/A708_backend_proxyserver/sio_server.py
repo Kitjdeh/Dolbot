@@ -18,18 +18,21 @@ def disconnect(sid):
 
 @sio.event
 def init_robot(sid, data):
+    print(data)
     dict = json.loads(data)
     robots[str(dict['id'])] = sid
     print('robot-sid 매핑:', dict['id'], robots[str(dict['id'])])
 
 @sio.event
 def init_user(sid, data):
+    print(data)
     dict = json.loads(data)
     users[str(dict['id'])] = sid
     print('user-sid 매핑:', dict['id'], sid)
 
 @sio.event
 def robot_message(sid, data):  # sid는 socket의 id
+    print(data)
     dict = json.loads(data)
 
     print(str(dict['id']) + '번 로봇 참여')
@@ -38,6 +41,7 @@ def robot_message(sid, data):  # sid는 socket의 id
     sio.emit('user_message', data, to=users[str(dict['to'])])
 @sio.event
 def user_message(sid, data):  # sid는 socket의 id
+    print(data)
     dict = json.loads(data)
     print(str(dict['id']) + '번 유저 참여')
     users[str(dict['id'])] = sid  # user ID에 소켓 ID 매핑
@@ -66,4 +70,4 @@ def chat_message(sid, data):
     # sio.emit('chat_message', data)
 
 if __name__ == '__main__':
-    eventlet.wsgi.server(eventlet.listen(('', 8080)), app)
+    eventlet.wsgi.server(eventlet.listen(('', 8081)), app)

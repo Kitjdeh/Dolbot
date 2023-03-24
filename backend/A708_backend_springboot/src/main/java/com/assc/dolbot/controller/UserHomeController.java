@@ -34,7 +34,7 @@ public class UserHomeController {
 
 	//등록된 로봇들 정보 가져오기
 	@GetMapping("/{user_id}")
-	public ResponseEntity<List<UserHomeDto>> UserHomeList(@PathVariable("user_id") int userId){
+	public ResponseEntity<List<UserHomeDto>> userHomeList(@PathVariable("user_id") int userId){
 		List<UserHomeDto> list = new ArrayList<>();
 		try{
 			list = userHomeService.findUserHomeList(userId);

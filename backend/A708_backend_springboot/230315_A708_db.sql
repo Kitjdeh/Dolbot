@@ -7,7 +7,7 @@ USE dolbot;
 CREATE TABLE user_info (
   user_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   user_name VARCHAR(50) NOT NULL,
-  profile_image_url VARCHAR(500) NOT NULL,
+  kakao_id INT UNSIGNED NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -108,9 +108,8 @@ CREATE TABLE schedule_log (
   FOREIGN KEY (log_list_id) REFERENCES log_list(log_list_id)
 );
 
-INSERT INTO user_info (user_name, profile_image_url)
-VALUES ('John Doe', 'https://example.com/profile.jpg'),
-       ('Jane Doe', 'https://example.com/profile.jpg');
+INSERT INTO user_info (user_name, kakao_id)
+VALUES ('John Doe', 1),('KIM DO WON', 2);
 
 INSERT INTO home (robot_number, location)
 VALUES (1, 'Living Room'),
@@ -118,15 +117,15 @@ VALUES (1, 'Living Room'),
        (3, 'Kitchen');
 
 INSERT INTO user_home (user_id, home_id, nickname)
-VALUES (1, 1, 'Living Room'),
-       (2, 2, 'Bedroom'),
-       (1, 3, 'Kitchen');
+VALUES (1, 1, '김원혁'),
+       (2, 2, '김정민'),
+       (1, 3, '기성도');
 
 INSERT INTO schedule_info (home_id, schedule_time, content)
-VALUES (1, '2023-03-22 08:00:00', 'Clean living room'),
-       (1, '2023-03-23 10:00:00', 'Change bed sheets'),
-       (1, '2023-03-23 11:00:00', 'Change bed sheets2'),
-       (1, '2023-03-24 15:00:00', 'Prepare dinner');
+VALUES (1, '2023-03-22 08:00:00', '청소하기'),
+       (1, '2023-03-23 10:00:00', '병원가기'),
+       (1, '2023-03-23 11:00:00', '이불 정리 하기'),
+       (1, '2023-03-24 15:00:00', '약 먹기');
 
 INSERT INTO appliance (appliance_name)
 VALUES ('TV'),
@@ -134,9 +133,9 @@ VALUES ('TV'),
        ('Refrigerator');
 
 INSERT INTO emergency (content)
-VALUES ('Fire'),
-       ('Flood'),
-       ('Earthquake');
+VALUES ('화재'),
+       ('기절'),
+       ('쓰러짐');
 
 INSERT INTO room (room_name)
 VALUES ('Living Room'),
@@ -144,14 +143,14 @@ VALUES ('Living Room'),
        ('Kitchen');
 
 INSERT INTO log_list (home_id, log_date, picture_url)
-VALUES (1, '2023-03-22', 'https://example.com/picture.jpg'),
-       (2, '2023-03-23', 'https://example.com/picture.jpg'),
-       (3, '2023-03-24', 'https://example.com/picture.jpg');
+VALUES (1, '2023-03-22', 'https://dolbot.s3.ap-northeast-2.amazonaws.com/1679576099594.jpg'),
+       (2, '2023-03-23', 'https://dolbot.s3.ap-northeast-2.amazonaws.com/1679578161983.jpg'),
+       (3, '2023-03-24', 'https://dolbot.s3.ap-northeast-2.amazonaws.com/1679578161983.jpg');
 
 INSERT INTO appliance_log (log_list_id, appliance_id, room_id, log_time, is_on)
-VALUES (1, 1, 1, '08:30:00', 1),
-       (1, 2, 1, '09:00:00', 0),
-       (2, 3, 2, '10:30:00', 1);
+VALUES (1, 1, 1, '08:30:00', true),
+       (1, 2, 1, '09:00:00', false),
+       (2, 3, 2, '10:30:00', true);
 
 INSERT INTO emergency_log (log_list_id, emergency_id, log_time)
 VALUES (1, 1, '10:00:00'),
@@ -159,20 +158,6 @@ VALUES (1, 1, '10:00:00'),
        (3, 3, '12:00:00');
 
 INSERT INTO schedule_log (log_list_id, content, log_time)
-VALUES (1, 'Cleaning done', '09:00:00'),
-       (2, 'Sheets changed', '11:00:00'),
-       (3, 'Dinner prepared', '16:00:00');
-
-SELECT * FROM schedule_info
-WHERE DATE(schedule_time) = '2023-03-17'
-AND home_id = 1;
-
-SELECT * FROM schedule_info;
-
-select current_date, current_timestamp from dual;
-
-select * from user_info;
-
-select * from home;
-
-select * from user_home;
+VALUES (1, '청소하기', '09:00:00'),
+       (2, '병원가기', '11:00:00'),
+       (3, '약먹기', '16:00:00');

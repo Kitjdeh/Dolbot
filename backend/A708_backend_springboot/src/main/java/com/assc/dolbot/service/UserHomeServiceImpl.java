@@ -27,8 +27,19 @@ public class UserHomeServiceImpl implements UserHomeService{
 	}
 
 	@Override
-	public List<UserHomeDto> findUserHomeList(int userId) throws Exception {
+	public List<UserHomeDto> findUserHomeListByUserId(int userId) throws Exception {
 		List<UserHome> list = userHomeRepository.findByUserId(userId);
+		List<UserHomeDto> dtoList = new ArrayList<>();
+		for(int i=0; i<list.size(); i++){
+			dtoList.add(list.get(i).toDto());
+		}
+		return dtoList;
+	}
+
+	@Override
+	public List<UserHomeDto> findUserHomeListByRobotNumber(int robotNumber) throws Exception {
+		int homeId = homeRepository.findByRobotNumber(robotNumber).getHomeId();
+		List<UserHome> list = userHomeRepository.findByHomeId(homeId);
 		List<UserHomeDto> dtoList = new ArrayList<>();
 		for(int i=0; i<list.size(); i++){
 			dtoList.add(list.get(i).toDto());

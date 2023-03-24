@@ -112,14 +112,17 @@ VALUES (1),
        (2);
        
 INSERT INTO home (robot_number, location)
-VALUES (1, 'Living Room'),
-       (2, 'Bedroom'),
-       (3, 'Kitchen');
+VALUES (10, 'Living Room'),
+       (20, 'Bedroom'),
+       (30, 'Kitchen');
 
 INSERT INTO user_home (user_id, home_id, nickname)
 VALUES (1, 1, '김원혁'),
-       (2, 2, '김정민'),
-       (1, 3, '기성도');
+       (1, 2, '이가옥'),
+       (1, 3, '정찬영'),
+       (2, 1, '김정민'),
+       (2, 2, '김도원'),
+       (2, 3, '기성도');
 
 INSERT INTO schedule_info (home_id, schedule_time, content)
 VALUES (1, '2023-03-22 08:00:00', '청소하기'),

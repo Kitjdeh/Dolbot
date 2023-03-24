@@ -8,4 +8,5 @@ import com.assc.dolbot.entity.UserHome;
 
 public interface UserHomeRepository extends JpaRepository<UserHome, Integer> {
 	List<UserHome> findByUserId(int userId);
+	List<UserHome> findByHomeId(int homeId);
 }

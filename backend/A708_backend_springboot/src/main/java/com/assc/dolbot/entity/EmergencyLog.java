@@ -47,7 +47,7 @@ public class EmergencyLog {
                 .logTime(timeString)
                 .applianceName("")
                 .isOn(false)
-                .emergencyContent("")
+                .emergencyContent(this.emergency.getContent())
                 .roomName("비상")
                 .scheduleContent("")
                 .build();

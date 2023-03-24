@@ -33,16 +33,29 @@ public class UserHomeController {
 	}
 
 	//등록된 로봇들 정보 가져오기
-	@GetMapping("/{user_id}")
-	public ResponseEntity<List<UserHomeDto>> userHomeList(@PathVariable("user_id") int userId){
+	@GetMapping("/robots/{user_id}")
+	public ResponseEntity<List<UserHomeDto>> userHomeListByUserId(@PathVariable("user_id") int userId){
 		List<UserHomeDto> list = new ArrayList<>();
 		try{
-			list = userHomeService.findUserHomeList(userId);
+			list = userHomeService.findUserHomeListByUserId(userId);
 			return new ResponseEntity<List<UserHomeDto>>(list, HttpStatus.OK);
 		}catch(Exception e){
 			return new ResponseEntity<List<UserHomeDto>>(list, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	//등록된 유저들 정보 가져오기 만들기
+	@GetMapping("/users/{robot_number}")
+	public ResponseEntity<List<UserHomeDto>> userHomeListByRobotNumber(@PathVariable("robot_number") int robotNumber){
+		List<UserHomeDto> list = new ArrayList<>();
+		try{
+			list = userHomeService.findUserHomeListByRobotNumber(robotNumber);
+			return new ResponseEntity<List<UserHomeDto>>(list, HttpStatus.OK);
+		}catch(Exception e){
+			return new ResponseEntity<List<UserHomeDto>>(list, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 
 	//로봇의 알람 설정
 	@PatchMapping("/{user_home_id}")

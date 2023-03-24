@@ -6,7 +6,6 @@ USE dolbot;
 
 CREATE TABLE user_info (
   user_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  user_name VARCHAR(50) NOT NULL,
   kakao_id INT UNSIGNED NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -108,18 +107,22 @@ CREATE TABLE schedule_log (
   FOREIGN KEY (log_list_id) REFERENCES log_list(log_list_id)
 );
 
-INSERT INTO user_info (user_name, kakao_id)
-VALUES ('John Doe', 1),('KIM DO WON', 2);
-
+INSERT INTO user_info (kakao_id)
+VALUES (1),
+       (2);
+       
 INSERT INTO home (robot_number, location)
-VALUES (1, 'Living Room'),
-       (2, 'Bedroom'),
-       (3, 'Kitchen');
+VALUES (10, 'Living Room'),
+       (20, 'Bedroom'),
+       (30, 'Kitchen');
 
 INSERT INTO user_home (user_id, home_id, nickname)
 VALUES (1, 1, '김원혁'),
-       (2, 2, '김정민'),
-       (1, 3, '기성도');
+       (1, 2, '이가옥'),
+       (1, 3, '정찬영'),
+       (2, 1, '김정민'),
+       (2, 2, '김도원'),
+       (2, 3, '기성도');
 
 INSERT INTO schedule_info (home_id, schedule_time, content)
 VALUES (1, '2023-03-22 08:00:00', '청소하기'),

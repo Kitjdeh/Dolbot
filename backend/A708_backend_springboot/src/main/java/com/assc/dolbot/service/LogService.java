@@ -13,4 +13,6 @@ public interface LogService {
     public void modifyLogList(int logListId, LogListDto logListDto) throws Exception;
     public LogListDto findLogList(int homeId, LocalDate localDate) throws Exception;
     public void addApplianceLog(LogDto logDto) throws Exception;
+    public void addEmergencyLog(LogDto logDto) throws Exception;
+    public void addScheduleLog(LogDto logDto) throws Exception;
 }

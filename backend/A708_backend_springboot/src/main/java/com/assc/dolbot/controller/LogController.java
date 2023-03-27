@@ -88,45 +88,57 @@ public class LogController {
         }
     }
 
-
-//    {
-//        "log_list_id" : 1,
-//            "log_time" : "17:50:00",
-//            "is_on" : true,
-//            "appliance_id" : 1,
-//            "room_id" : 1
-//    }
-//
     // 기기 동작 로그
-//    @PostMapping("log/appliance-log")
-//    public ResponseEntity<String> applianceLogAdd(@RequestBody LogDto logDto){
-//        try{
-//            logService.addApplianceLog(logDto);
-//            return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
-//        }catch(Exception e){
-//            e.printStackTrace();
-//            return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    @PostMapping("log/emergency-log")
-//    public ResponseEntity<String> scheduleInfoRemove(@PathVariable("schedule_id") int scheduleInfoId){
-//        try{
-//            scheduleInfoService.removeScheduleInfo(scheduleInfoId);
-//            return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
-//        }catch(Exception e){
-//            return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    @PostMapping("log/schedule-log")
-//    public ResponseEntity<String> scheduleInfoRemove(@PathVariable("schedule_id") int scheduleInfoId){
-//        try{
-//            scheduleInfoService.removeScheduleInfo(scheduleInfoId);
-//            return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
-//        }catch(Exception e){
-//            return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @PostMapping("log/appliance-log")
+    @ApiOperation(value = "기기 동작 로그 저장", notes = "기기 동작 로그를 저장하는 api" +
+            "{\n" +
+            "  \"applianceId\": 1,\n" +
+            "  \"logListId\": 1,\n" +
+            "  \"logTime\": \"09:50:00\",\n" +
+            "  \"on\": true,\n" +
+            "  \"roomId\": 1\n" +
+            "}")
+    public ResponseEntity<String> applianceLogAdd(@RequestBody LogDto logDto){
+        try{
+            logService.addApplianceLog(logDto);
+            return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
+        }catch(Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // 비상 로그 저장
+    @PostMapping("log/emergency-log")
+    @ApiOperation(value = "비상 상황 로그 저장", notes = "비상 상황 로그를 저장하는 api" +
+            "{\n" +
+            "   \"emergencyId\": 1,\n" +
+            "   \"logListId\": 1,\n" +
+            "   \"logTime\": \"09:50:15\"\n" +
+            "    }")
+    public ResponseEntity<String> emergencyLogAdd(@RequestBody LogDto logDto){
+        try{
+            logService.addEmergencyLog(logDto);
+            return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
+        }catch(Exception e){
+            return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("log/schedule-log")
+    @ApiOperation(value = "일정 실행 로그 저장", notes = "일정 실행행 로그 저장하는 api" +
+            "{\n" +
+            "  \"logListId\": 1,\n" +
+            "  \"logTime\": \"11:12:12\",\n" +
+            "  \"scheduleContent\": \"약 먹기\"\n" +
+            "}")
+    public ResponseEntity<String> scheduleLogAdd(@RequestBody LogDto logDto){
+        try{
+            logService.addScheduleLog(logDto);
+            return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
+        }catch(Exception e){
+            return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }

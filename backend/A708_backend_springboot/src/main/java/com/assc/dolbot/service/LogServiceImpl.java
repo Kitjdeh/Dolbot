@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.mock.web.MockMultipartFile;
+
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
@@ -30,6 +33,8 @@ public class LogServiceImpl implements LogService{
     RoomRepository roomRepository;
     @Autowired
     EmergencyLogRepository emergencyLogRepository;
+    @Autowired
+    EmergencyRepository emergencyRepository;
     @Autowired
     ScheduleLogRepository scheduleLogRepository;
 
@@ -102,6 +107,18 @@ public class LogServiceImpl implements LogService{
         }
 
         LogListDto logListDto = logList.toDto();
+        Collections.sort(logDtoList, new Comparator<LogDto>() {
+            @Override
+            public int compare(LogDto o1, LogDto o2) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss");
+                Time t1 = Time.valueOf(o1.getLogTime());
+                Time t2 = Time.valueOf(o2.getLogTime());
+
+                return t1.compareTo(t2);
+            }
+        });
+
+
         logListDto.setLogs(logDtoList);
 
 
@@ -110,7 +127,6 @@ public class LogServiceImpl implements LogService{
 
     @Override
     public void addApplianceLog(LogDto logDto) throws Exception {
-        System.out.println(logDto);
         ApplianceLog applianceLog = logDto.toApplianceLog();
         applianceLog.setAppliance(applianceRepository.findById(logDto.getApplianceId()).get());
         applianceLog.setRoom(roomRepository.findById(logDto.getRoomId()).get());
@@ -118,6 +134,19 @@ public class LogServiceImpl implements LogService{
         System.out.println(applianceLog);
 
         applianceLogRepository.save(applianceLog);
+    }
+
+    @Override
+    public void addEmergencyLog(LogDto logDto) throws Exception {
+        EmergencyLog emergencyLog = logDto.toEmergencyLog();
+        emergencyLog.setEmergency(emergencyRepository.findById(logDto.getEmergencyId()).get());
+        emergencyLogRepository.save(emergencyLog);
+    }
+
+    @Override
+    public void addScheduleLog(LogDto logDto) throws Exception {
+        ScheduleLog scheduleLog = logDto.toScheduleLog();
+        scheduleLogRepository.save(scheduleLog);
     }
 
 }

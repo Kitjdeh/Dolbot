@@ -17,15 +17,21 @@ services:
             - '8080:8080'
         volumes:
             - ./backend/A708_backend_springboot:/srv/docker-server
-    nginx:
-        image: nginx:1.15-alpine
-        container_name: nginx
-        restart: unless-stopped
-        volumes:
-            - ./nginx:/et/nginx/conf.d 
-          #  - ./data/certbot/conf:/etc/letsencrypt
-          #  - ./data/certbot/www:/var/www/certbot
+    
+    sio_servver:
+        build: ./backend/A708_backend_proxyserver
+        container_name: backend_sio
         ports:
-            - '80:80'
-            - '443:443'
-        command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; don & nginx -g \"daemon off;\"'"
+            - '8081:8081'
+    # nginx:
+    #     image: nginx:1.15-alpine
+    #     container_name: nginx
+    #     restart: unless-stopped
+    #     volumes:
+    #         - ./nginx:/et/nginx/conf.d 
+    #       #  - ./data/certbot/conf:/etc/letsencrypt
+    #       #  - ./data/certbot/www:/var/www/certbot
+    #     ports:
+    #         - '80:80'
+    #         - '443:443'
+    #     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; don & nginx -g \"daemon off;\"'"

@@ -31,19 +31,30 @@ def init_user(sid, data):
     print('user-sid 매핑:', dict['id'], sid)
 
 @sio.event
+def weather_status(sid, data):
+    dict = json.loads(data)
+    print(data)
+    sio.emit('weather_status', data, to=users[str(dict['to'])])
+
+@sio.event
+def appliance_status(sid, data):
+    dict = json.loads(data)
+    print(data)
+    sio.emit('appliance_status', data, to=robots[str(dict['to'])])
+
+@sio.event
 def robot_message(sid, data):  # sid는 socket의 id
     print(data)
     dict = json.loads(data)
 
-    print(str(dict['id']) + '번 로봇 참여')
+    print(str(dict['id']) + '번 로봇 메시지')
     robots[str(dict['id'])] = sid  # robot ID에 소켓 ID 매핑
-    #sio.emit('user_message', "환영합다. 이 메시지는 "+str(dict["id"])+"번 로봇이 유저" + str(dict['to']) +"에게 보낸 메시지입니다.", to=users[str(dict['to'])])
     sio.emit('user_message', data, to=users[str(dict['to'])])
 @sio.event
 def user_message(sid, data):  # sid는 socket의 id
     print(data)
     dict = json.loads(data)
-    print(str(dict['id']) + '번 유저 참여')
+    print(str(dict['id']) + '번 유저 메시지')
     users[str(dict['id'])] = sid  # user ID에 소켓 ID 매핑
     #sio.emit('robot_message', "환영합니다. 이 메시지는 "+str(dict["id"])+"번 유저가 로봇" + str(dict['to']) +"에게 보낸 메시지입니다.", to=robots[str(dict['to'])])
     sio.emit('robot_message', data, to=robots[str(dict['to'])])
@@ -66,8 +77,6 @@ def chat_message(sid, data):
             sio.emit('chat_message', "환영합니다 " + str(dict["id"]) + "번 어플", to=sid)
         else:
             sio.emit('chat_message', data, to=robots[str(dict['to'])])
-    # print('메시지 수신:', data)
-    # sio.emit('chat_message', data)
 
 if __name__ == '__main__':
     eventlet.wsgi.server(eventlet.listen(('', 8081)), app)

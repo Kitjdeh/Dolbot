@@ -12,6 +12,7 @@ import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @Entity
@@ -34,16 +35,17 @@ public class ApplianceLog {
     @Column(nullable = false)
     private int logListId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="room_id")
     private Room room;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="appliance_id")
     private Appliance appliance;
 
 
     @CreatedDate
+
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
     @LastModifiedDate

@@ -144,7 +144,7 @@ class weather_pub(Node):
             global socket_data
             socket_data["message"] = {"environment": environment, "air": air,
                                       "out_temp": out_temp, "out_hum": out_hum,
-                                      "in_temp": in_temp, "out_hum": in_hum}
+                                      "in_temp": in_temp, "in_hum": in_hum}
 
             print("data", socket_data)
 
@@ -178,16 +178,14 @@ def disconnect():
 
 
 @sio.event
-def robot_message(data):  # !!!chat_message를 robot_message로 변경했습니다!!!
-    print('메시지 수신:', data)
-    dict = json.loads(data)
-    print(dict["type"] + "가 보낸 메세지")
-    print("userID="+str(dict["id"]))
-    print("robotID="+str(dict["to"]))
-    # print(dict["type"]+"가 보낸 메세지, userID="+str(dict["id"])+", robotID="+str(dict["to"])+", message="+dict["message"])
-    dict2 = dict["message"]
-    print("message : room=" + str(dict2["room"]) +
-          ", device="+dict2["device"]+", status="+dict2["status"])
+def robot_message(data):  # 최초 앱 접속 및 렌더링시 날씨 요청
+    origin = json.loads(data)
+    msg = origin["message"]
+    if msg == "True":
+        global socket_data
+        print("recive data!!")
+        sio.emit('weather_status', json.dumps(socket_data))
+        print("emit complete")
 
 
 def main(args=None):

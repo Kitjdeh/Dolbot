@@ -38,3 +38,32 @@
     - ![휴게공간](assets\휴게공간.png)
 
 ​		
+
+
+
+
+
+*2023-03-26 진행 상황*
+
+- ### 시나리오 파일 저장 
+
+  - home.json이라고 되어 있는 파일을 다음의 경로에 추가 후 시뮬레이터 안에서 Load해오면 된다.
+  - SSAFYLauncher_SSAFY_Win\SSAFYLauncher_SSAFY_Win_Data\SaveFile\Scenario\V_IND_SmartHome3
+
+- ### 시뮬레이터 가구 배치 완료
+
+  - 거실
+  - ![거실0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\거실0327.png)
+  - 주방
+  - ![주방0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\주방0327.png)
+  - 작은방
+  - ![작은방0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\작은방0327.png)
+  - 옷방
+  - ![옷방0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\옷방0327.png)
+  - 화장실
+  - ![화장살0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\화장살0327.png)
+  - 침실
+  - ![침실0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\침실0327.png)
+  - 서재
+  - ![서재0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\서재0327.png)
+

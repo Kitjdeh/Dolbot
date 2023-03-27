@@ -1,7 +1,9 @@
 package com.assc.dolbot.dto;
 
 import com.assc.dolbot.entity.ApplianceLog;
+import com.assc.dolbot.entity.EmergencyLog;
 import com.assc.dolbot.entity.LogList;
+import com.assc.dolbot.entity.ScheduleLog;
 import lombok.*;
 
 import java.sql.Date;
@@ -24,13 +26,31 @@ public class LogDto {
     private int logListId;
     private int applianceId;
     private int roomId;
+    private int emergencyId;
 
     public ApplianceLog toApplianceLog(){
         ApplianceLog applianceLog = ApplianceLog.builder()
                 .logListId(this.logListId)
                 .isOn(this.isOn)
-                .logTime(Time.valueOf(logTime))
+                .logTime(Time.valueOf(this.logTime))
                 .build();
         return applianceLog;
+    }
+
+    public EmergencyLog toEmergencyLog() {
+        EmergencyLog emergencyLog = EmergencyLog.builder()
+                .logListId(this.logListId)
+                .logTime(Time.valueOf(this.logTime))
+                .build();
+        return emergencyLog;
+    }
+
+    public ScheduleLog toScheduleLog() {
+        ScheduleLog scheduleLog = ScheduleLog.builder()
+                .logListId(this.logListId)
+                .logTime(Time.valueOf(this.logTime))
+                .content(this.scheduleContent)
+                .build();
+        return scheduleLog;
     }
 }

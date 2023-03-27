@@ -12,6 +12,7 @@ import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @Entity

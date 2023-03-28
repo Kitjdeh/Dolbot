@@ -22,7 +22,7 @@ public class Appliance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int applianceId;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String applianceName;
 
     @CreatedDate

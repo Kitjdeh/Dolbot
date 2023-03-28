@@ -28,7 +28,7 @@ public class ScheduleLog {
     @Column(nullable = false)
     private Time logTime;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String content;
 
     @Column(nullable = false)

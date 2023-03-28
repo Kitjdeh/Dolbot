@@ -35,7 +35,7 @@ public class LogList {
     private int logListId;
     @Column(updatable = false,nullable = false)
     private Date logDate;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String pictureUrl;
 
     @ManyToOne

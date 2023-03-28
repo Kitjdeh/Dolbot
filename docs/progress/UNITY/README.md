@@ -7,7 +7,7 @@
     - Unity Asset Store로부터 받은 캐릭터에 Idle- Walk - fall 등의 애니메이션을 입히는 작업
     - 캐릭터 자체를 Build하여 시뮬레이터 안으로 가지고 오는 작업
 
-    - ![캐릭터](assets\캐릭터.gif)
+    - ![캐릭터](assets/캐릭터.gif)
 
   - ### 시뮬레이터 내부 공간 구성
 
@@ -19,23 +19,23 @@
 
     - ##### 거실 및 주방 
 
-    - ![거실및주방](assets\거실및주방.png)
+    - ![거실및주방](assets/거실및주방.png)
 
     - ##### 서재
 
-    - ![서재](assets\서재.png)
+    - ![서재](assets/서재.png)
 
     - ##### 침실
 
-    - ![침실](assets\침실.png)
+    - ![침실](assets/침실.png)
 
     - ##### 화장실 
 
-    - ![화장실](assets\화장실.png)
+    - ![화장실](assets/화장실.png)
 
     - ##### 휴게 공간
 
-    - ![휴게공간](assets\휴게공간.png)
+    - ![휴게공간](assets/휴게공간.png)
 
 ​		
 
@@ -53,17 +53,17 @@
 - ### 시뮬레이터 가구 배치 완료
 
   - 거실
-  - ![거실0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\거실0327.png)
+  - ![거실0327](assets/거실0327.png)
   - 주방
-  - ![주방0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\주방0327.png)
+  - ![주방0327](assets/주방0327.png)
   - 작은방
-  - ![작은방0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\작은방0327.png)
+  - ![작은방0327](assets/작은방0327.png)
   - 옷방
-  - ![옷방0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\옷방0327.png)
+  - ![옷방0327](assets/옷방0327.png)
   - 화장실
-  - ![화장살0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\화장살0327.png)
+  - ![화장살0327](assets/화장살0327.png)
   - 침실
-  - ![침실0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\침실0327.png)
+  - ![침실0327](assets/침실0327.png)
   - 서재
-  - ![서재0327](C:\Users\SSAFY\Desktop\special_pjt\documents\docs\progress\UNITY\assets\서재0327.png)
+  - ![서재0327](assets/서재0327.png)
 

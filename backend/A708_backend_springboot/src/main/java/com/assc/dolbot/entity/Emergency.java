@@ -21,7 +21,7 @@ public class Emergency {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int emergencyId;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String content;
 
     @CreatedDate

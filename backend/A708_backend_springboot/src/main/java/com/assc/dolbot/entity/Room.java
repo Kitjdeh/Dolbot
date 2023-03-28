@@ -21,7 +21,7 @@ public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int roomId;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private String roomName;
 
     @CreatedDate

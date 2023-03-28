@@ -42,20 +42,15 @@ public class LogServiceImpl implements LogService{
     AmazonS3ResourceStorage amazonS3ResourceStorage;
 
 
-    // loglist를 만들고 사진을 저장하는 함수 같은 날짜로 한번 더 실행시 예외를 일으킴
+    // loglist를 만들고 사진을 저장하는 함수
     @Override
     public LogList addLogList(LogListDto logListDto) throws Exception {
         Home home = homeRepository.findByRobotNumber(logListDto.getRobotId());
         LogList logList = logListDto.toEntity();
         LogList newLogList;
-        if(0  < logListRepository.countLogListByHomeIdAndLogDate(home.getHomeId(),logList.getLogDate())){
-            System.out.println("already saved infomation : check your date)");
-            throw new Exception();
-        }
         Instant now = Instant.now();
         long uniqueValue = now.toEpochMilli();
         byte[] decodedImageBytes = Base64Utils.decodeFromUrlSafeString(logListDto.getPicture());
-        System.out.println(123);
         String fileName = Long.valueOf(uniqueValue) + ".jpg";
         String contentType = "image/jpeg";
         logList.setHome(home);
@@ -63,6 +58,10 @@ public class LogServiceImpl implements LogService{
 
         String url = amazonS3ResourceStorage.store(fileName, file);
         logList.setPictureUrl(url);
+        if(0  < logListRepository.countLogListByHomeIdAndLogDate(home.getHomeId(),logList.getLogDate())){
+            newLogList = logListRepository.findByHomeIdAndLogDate(home.getHomeId(), logList.getLogDate());
+            logList.setLogListId(newLogList.getLogListId());
+        }
         logListRepository.save(logList);
         newLogList = logListRepository.findByHomeIdAndLogDate(home.getHomeId(), logList.getLogDate());
         return newLogList;
@@ -130,8 +129,6 @@ public class LogServiceImpl implements LogService{
         ApplianceLog applianceLog = logDto.toApplianceLog();
         applianceLog.setAppliance(applianceRepository.findById(logDto.getApplianceId()).get());
         applianceLog.setRoom(roomRepository.findById(logDto.getRoomId()).get());
-
-        System.out.println(applianceLog);
 
         applianceLogRepository.save(applianceLog);
     }

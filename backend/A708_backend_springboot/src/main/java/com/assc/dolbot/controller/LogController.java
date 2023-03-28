@@ -47,7 +47,6 @@ public class LogController {
             logList = logService.addLogList(logListDto);
         }catch(Exception e){
             e.printStackTrace();
-            System.out.println(logListDto);
             return new ResponseEntity<LogList>(logList, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -67,7 +66,6 @@ public class LogController {
             return new ResponseEntity<String>("success", HttpStatus.OK);
         }catch(Exception e){
             e.printStackTrace();
-            System.out.println(logListDto);
             return new ResponseEntity<String>("fail", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -81,9 +79,9 @@ public class LogController {
         LogListDto logList = new LogListDto();
         try{
             logList = logService.findLogList(homeId, localDate);
-            System.out.println(logList);
             return new ResponseEntity<LogListDto>(logList, HttpStatus.OK);
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<LogListDto>(logList, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -121,6 +119,7 @@ public class LogController {
             logService.addEmergencyLog(logDto);
             return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -137,6 +136,7 @@ public class LogController {
             logService.addScheduleLog(logDto);
             return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
         }catch(Exception e){
+            e.printStackTrace();
             return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

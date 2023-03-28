@@ -1,4 +1,3 @@
-
 import rclpy
 from rclpy.node import Node
 import time
@@ -13,13 +12,16 @@ from nav_msgs.msg import Path
 from ssafy_msgs.msg import TurtlebotStatus
 from geometry_msgs.msg import Pose, PoseStamped, Twist
 
+from . import speech_to_text
+import threading
+
 appliance = {
     "living_room": {  # 거실 (조명/에어컨/TV)
         "light": {"status": "OFF", "pose": [0, 0]},
         "air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "target": 23, "pose": [0, 0]},
         # mode = cool, warm, dry
         # speed = high, mid, low
-        "tv": {"status": "OFF", "pose": [-6.36, 16.23]},
+        "tv": {"status": "OFF", "pose": [-6.36, 15.33]},
     },
     "inner_room": {  # 안방 (조명/에어컨/공기청정기)
         "light": {"status": "OFF", "pose": [0, 0]},
@@ -145,6 +147,9 @@ class iot_udp(Node):
                     toast_msg[status]
                 sio.emit('toast', socket_data)
                 print("complete")
+
+                # 가전제어 완료 로그 POST 요청 
+
             else:
                 print("connection error")
         else:
@@ -295,9 +300,9 @@ iot = ''
 sio = socketio.Client()
 
 socket_data = {
-    "type": "robot",  # !!!t를 type으로 변경했습니다!!!
-    "id": 1,  # robot ID
-    "to": 1,  # user ID
+    "type": "robot",
+    "id": 2,  # robot ID
+    "to": 2,  # user ID
     "message": "로봇 테스트입니다. 띠디디디-",
 }
 
@@ -322,20 +327,24 @@ def home_status(data):
 
 
 @sio.event
-def appliance_status(data):  # !!!chat_message를 robot_message로 변경했습니다!!!
+def appliance_status(data): 
     print('메시지 수신:', data)
     dict = json.loads(data)
     print(dict["type"] + "가 보낸 메세지")
     print("userID="+str(dict["id"]))
     print("robotID="+str(dict["to"]))
-    # print(dict["type"]+"가 보낸 메세지, userID="+str(dict["id"])+", robotID="+str(dict["to"])+", message="+dict["message"])
+    
     dict2 = dict["message"]
     print("message : room=" + str(dict2["room"]) +
           ", device="+dict2["device"]+", status="+dict2["status"])
     iot.device_control(dict2["room"], dict2["device"], dict2["status"])
 
-
 def main(args=None):
+
+    # STT Thread (관련 파일은 import 해서 사용)
+    t = threading.Thread(target=speech_to_text.speechToText)
+    t.start()
+
     sio.connect('http://3.36.67.119:8081')
     rclpy.init(args=args)
     global iot

@@ -15,6 +15,11 @@ from geometry_msgs.msg import Pose, PoseStamped, Twist
 from . import speech_to_text
 import threading
 
+import requests
+import json
+
+url='http://3.36.67.119:8080'
+
 appliance = {
     "living_room": {  # 거실 (조명/에어컨/TV)
         "light": {"status": "OFF", "pose": [0, 0]},
@@ -61,7 +66,6 @@ toast_msg = {
     "OFF": "꺼졌습니다"
 }
 
-
 params_status = {
     (0xa, 0x25): "IDLE",
     (0xb, 0x31): "CONNECTION",
@@ -79,11 +83,26 @@ params_control_cmd = {
     "DISCONNECT": (0x00, 0x25)
 }
 
+appliance_mapping={
+    "light":1,
+    "air_conditioner":2,
+    "tv": 3,
+    "air_cleaner": 4
+}
+
+room_mapping={
+    "living_room": 1,
+    "inner_room": 2, 
+    "library": 3,
+    "small_room": 4, 
+    "toilet": 5,
+    "entrance": 6,
+}
+
 # device_pose = {
 #     "tv": [-6.36, 16.23],
 #     "air": [-12.26, 5.51]
 # }
-
 
 class iot_udp(Node):
 
@@ -94,6 +113,7 @@ class iot_udp(Node):
         self.status_sub = self.create_subscription(
             TurtlebotStatus, '/turtlebot_status', self.status_callback, 10)
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        
         self.status_msg = TurtlebotStatus()
         self.cmd_msg = Twist()
         self.is_status = False
@@ -149,6 +169,19 @@ class iot_udp(Node):
                 print("complete")
 
                 # 가전제어 완료 로그 POST 요청 
+                body = {
+                    "applianceId": appliance_mapping[device_name],  # 가전기기마다 번호 매핑
+                    "logListId": 1,  # 최초 사진 찍을 때 loglistid 생성 => 받아와서 값 넣어주기 
+                    "logTime": "20:50:00",
+                    "on": True if status=='ON' else False,
+                    "roomId": room_mapping[room_name]  # 방마다 번호 매핑
+                }
+                res = requests.post(
+                    url+'/api/v1/log/log/appliance-log',
+                    headers={'Content-Type': 'application/json', 'charset': 'UTF-8', 'Accept': '*/*'},
+                    data=json.dumps(body)
+                )
+                print(res)
 
             else:
                 print("connection error")

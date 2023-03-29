@@ -15,7 +15,7 @@ import time
 import os
 from . import iot_udp
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = ""
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/TTS/vibrant-period-381607-92ab31325bad.json"
 
 # Audio recording parameters
 RATE = 16000

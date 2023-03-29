@@ -37,6 +37,7 @@ def init_user(sid, data):
 # 날씨의 상태를 유저에게 전달하는 함수 EM -> FE
 @sio.event
 def weather_status(sid, data):
+    print("weather_status")
     dict = json.loads(data)
     print(data)
     sio.emit('weather_status', data, to=users[str(dict['to'])])
@@ -44,6 +45,7 @@ def weather_status(sid, data):
 # 기기의 제어를 로봇에게 요청하는 함수 FE -> EM
 @sio.event
 def appliance_status(sid, data):
+    print("appliance_status")
     dict = json.loads(data)
     print(data)
     sio.emit('appliance_status', data, to=robots[str(dict['to'])])
@@ -51,6 +53,7 @@ def appliance_status(sid, data):
 # 집의 기기들의 상태를 유저에게 전달하는 함수 EM -> FE
 @sio.event
 def home_status(sid, data):
+    print("home_status")
     dict = json.loads(data)
     print(data)
     sio.emit('home_status', data, to=users[str(dict['to'])])
@@ -58,6 +61,7 @@ def home_status(sid, data):
 # 스케줄의 변동을 로봇에게 알리는 함수 FE -> EM
 @sio.event
 def schedule(sid, data):
+    print("schedule")
     dict = json.loads(data)
     print(data)
     sio.emit('schedule',data, to=robots[str(dict['to'])])
@@ -65,27 +69,30 @@ def schedule(sid, data):
 # 제어 일정 응급에 대한 알림 메시지 EM -> FE
 @sio.event
 def toast(sid, data):
+    print("toast")
     dict = json.loads(data)
     print(data)
     sio.emit('toast',data,to=users[str(dict['to'])])
 
 
-
+#로봇이 유저에게 보내는 메시지
 @sio.event
 def robot_message(sid, data):  # sid는 socket의 id
+    print("robot_message")
     print(data)
     dict = json.loads(data)
 
-    print(str(dict['id']) + '번 로봇 메시지')
-    robots[str(dict['id'])] = sid  # robot ID에 소켓 ID 매핑
+    robots[str(dict['id'])] = sid
     sio.emit('user_message', data, to=users[str(dict['to'])])
+
+#유저가 로봇에게 보내는 메시지
 @sio.event
 def user_message(sid, data):  # sid는 socket의 id
+    print("user_message")
     print(data)
     dict = json.loads(data)
-    print(str(dict['id']) + '번 유저 메시지')
-    users[str(dict['id'])] = sid  # user ID에 소켓 ID 매핑
-    #sio.emit('robot_message', "환영합니다. 이 메시지는 "+str(dict["id"])+"번 유저가 로봇" + str(dict['to']) +"에게 보낸 메시지입니다.", to=robots[str(dict['to'])])
+    
+    users[str(dict['id'])] = sid
     sio.emit('robot_message', data, to=robots[str(dict['to'])])
 
 @sio.event

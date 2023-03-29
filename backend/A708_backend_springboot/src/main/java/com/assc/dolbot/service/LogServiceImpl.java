@@ -51,8 +51,8 @@ public class LogServiceImpl implements LogService{
         Instant now = Instant.now();
         long uniqueValue = now.toEpochMilli();
         byte[] decodedImageBytes = Base64Utils.decodeFromUrlSafeString(logListDto.getPicture());
-        String fileName = Long.valueOf(uniqueValue) + ".jpg";
-        String contentType = "image/jpeg";
+        String fileName = Long.valueOf(uniqueValue) + ".png";
+        String contentType = "image/png";
         logList.setHome(home);
         MultipartFile file = new MockMultipartFile(fileName,fileName,contentType,decodedImageBytes);
 
@@ -76,8 +76,8 @@ public class LogServiceImpl implements LogService{
         Instant now = Instant.now();
         long uniqueValue = now.toEpochMilli();
         byte[] decodedImageBytes = Base64Utils.decodeFromUrlSafeString(logListDto.getPicture());
-        String fileName = Long.valueOf(uniqueValue) + ".jpg";
-        String contentType = "image/jpeg";
+        String fileName = Long.valueOf(uniqueValue) + ".png";
+        String contentType = "image/png";
         MultipartFile file = new MockMultipartFile(fileName,fileName,contentType,decodedImageBytes);
 
         String url = amazonS3ResourceStorage.store(fileName, file);

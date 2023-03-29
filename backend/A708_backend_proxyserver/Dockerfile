@@ -1,4 +1,6 @@
-COPY requirements.txt .
+FROM ubuntu:20.04
+WORKDIR /home/socket
+RUN apt update && apt-get install python3 python3-pip -y
+COPY . .
 RUN pip install --no-cache-dir -r ./requirements.txt
-COPY sio_server .
-CMD ["python","./sio_server.py"]
+CMD ["python","-u","./sio_server.py"]

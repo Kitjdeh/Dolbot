@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-import time
+from time import time
 import os
 import socket
 import threading
@@ -9,7 +9,7 @@ import binascii
 import socketio
 import json
 from nav_msgs.msg import Path
-from ssafy_msgs.msg import TurtlebotStatus
+from ssafy_msgs.msg import TurtlebotStatus, EnviromentStatus
 from geometry_msgs.msg import Pose, PoseStamped, Twist
 
 from . import speech_to_text
@@ -17,6 +17,7 @@ import threading
 
 import requests
 import json
+from time import localtime
 
 url='http://3.36.67.119:8080'
 
@@ -113,7 +114,7 @@ class iot_udp(Node):
         self.status_sub = self.create_subscription(
             TurtlebotStatus, '/turtlebot_status', self.status_callback, 10)
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
-        
+
         self.status_msg = TurtlebotStatus()
         self.cmd_msg = Twist()
         self.is_status = False
@@ -149,8 +150,7 @@ class iot_udp(Node):
             self.goal_pub.publish(goal_pose)
             if self.is_status == True:
                 while not (goal_pose.pose.position.x-0.5 <= self.status_msg.twist.angular.x <= goal_pose.pose.position.x+0.5) or not (goal_pose.pose.position.y-0.5 <= self.status_msg.twist.angular.y <= goal_pose.pose.position.y+0.5):
-                    print(self.status_msg.twist.angular.x,
-                          self.status_msg.twist.angular.y)
+                    print(self.status_msg.twist.angular.x, self.status_msg.twist.angular.y)
                     continue
                 self.cmd_msg.linear.x = 0.0
                 self.cmd_msg.angular.z = 0.0
@@ -169,10 +169,12 @@ class iot_udp(Node):
                 print("complete")
 
                 # 가전제어 완료 로그 POST 요청 
+                now_time = time()
+                now_time=localtime(now_time)
                 body = {
                     "applianceId": appliance_mapping[device_name],  # 가전기기마다 번호 매핑
                     "logListId": 1,  # 최초 사진 찍을 때 loglistid 생성 => 받아와서 값 넣어주기 
-                    "logTime": "20:50:00",
+                    "logTime": str(now_time.tm_hour)+":"+str(now_time.tm_min)+":"+str(now_time.tm_sec),
                     "on": True if status=='ON' else False,
                     "roomId": room_mapping[room_name]  # 방마다 번호 매핑
                 }

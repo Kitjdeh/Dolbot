@@ -37,9 +37,9 @@ public class LogController {
     @PostMapping(value = "/log-lists", consumes = "application/json")
     @ApiOperation(value = "사진 최초 등록, 로그 리스트 생성", notes = "LogList를 생성하는 API, 같은 날짜로 두번 실행 불가" +
             "\n request : { \n" +
-            "\t\"robot_id\" : 1\n" +
+            "\t\"robotId\" : 1\n" +
             "\t\"picture\" : \"인코딩된 이미지의 문자열\",\n" +
-            "\t\"log_date\" : \"2023-01-19\"\n" +
+            "\t\"logDate\" : \"2023-01-19\"\n" +
             "}")
     public ResponseEntity<LogList> logListAdd(@RequestBody LogListDto logListDto) {
         LogList logList = null;
@@ -57,7 +57,7 @@ public class LogController {
     @PatchMapping("/log-lists/{log_list_id}")
     @ApiOperation(value = "사진 변경", notes = " 해당 날짜의 사진 변경, /api/v1/log/logs/{home_id}?localDate=yyyy-MM-dd) " +
             "\nrequest :{\n" +
-            "\t\"robot_id\" : 1\n" +
+            "\t\"robotId\" : 1\n" +
             "\t\"picture\" : \"인코딩된 이미지의 문자열\"\n" +
             "}")
     public ResponseEntity<String> logListModify(@PathVariable("log_list_id") int logListId, @RequestBody LogListDto logListDto){

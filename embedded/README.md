@@ -2,3 +2,4 @@
 
 2023-03-29 human_detector , OpenCV +Lidar 좌표 변환 완성
 
+![이미지 인식](assets/human_detector-OpenCV_Lidar.gif)

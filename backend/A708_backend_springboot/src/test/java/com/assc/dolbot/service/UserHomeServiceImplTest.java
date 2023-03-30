@@ -33,38 +33,6 @@ class UserHomeServiceImplTest {
 	@InjectMocks
 	private UserHomeServiceImpl userHomeService;
 
-	// @Test
-	// @DisplayName("로봇 추가")
-	// public void addUserHome() throws Exception {
-	// 	// given
-	// 	UserHome userHome = UserHome.builder()
-	// 		.userHomeId(7)
-	// 		.userId(1)
-	// 		.homeId(1)
-	// 		.nickname("할머니")
-	// 		.isAlarm(false)
-	// 		.build();
-	//
-	// 	UserHomeDto userHomeDto = UserHomeDto.builder()
-	// 		.userId(1)
-	// 		.robotNumber(10)
-	// 		.nickname("할머니")
-	// 		.build();
-	//
-	// 	Home home = Home.builder().homeId(1).robotNumber(10).build();
-	// 	given(homeRepository.findByRobotNumber(userHomeDto.getRobotNumber())).willReturn(home);
-	// 	given(userHomeRepository.save(any(UserHome.class))).willReturn(userHome);
-	//
-	// 	// when
-	// 	userHomeService.addUserHome(userHomeDto);
-	//
-	// 	userHomeDto.setHomeId(1);
-	// 	userHome.setUserHomeId(7);
-	//
-	// 	// then
-	// 	verify(userHomeRepository).save(userHomeDto.toEntity());
-	// }
-
 	@Test
 	@DisplayName("로봇 추가")
 	public void addUserHome() throws Exception {

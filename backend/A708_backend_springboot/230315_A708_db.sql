@@ -112,9 +112,9 @@ VALUES (1),
        (2);
        
 INSERT INTO home (robot_number, location)
-VALUES (10, 'Living Room'),
-       (20, 'Bedroom'),
-       (30, 'Kitchen');
+VALUES (10, '서울'),
+       (20, '부산'),
+       (30, '제주도');
 
 INSERT INTO user_home (user_id, home_id, nickname)
 VALUES (1, 1, '김원혁'),
@@ -131,19 +131,24 @@ VALUES (1, '2023-03-22 08:00:00', '청소하기'),
        (1, '2023-03-24 15:00:00', '약 먹기');
 
 INSERT INTO appliance (appliance_name)
-VALUES ('TV'),
-       ('Air conditioner'),
-       ('Refrigerator');
+VALUES ('조명'),
+       ('에어컨'),
+       ('TV'),
+       ('공기청정기');
 
 INSERT INTO emergency (content)
-VALUES ('화재'),
-       ('기절'),
-       ('쓰러짐');
+VALUES ('구조요청'),
+	   ('태풍'),
+	   ('화재'),
+	   ('쓰러짐');
 
 INSERT INTO room (room_name)
-VALUES ('Living Room'),
-       ('Bedroom'),
-       ('Kitchen');
+VALUES ('거실'),
+       ('안방'),
+       ('서재'),
+       ('작은방'),
+       ('화장실'),
+       ('현관');
 
 INSERT INTO log_list (home_id, log_date, picture_url)
 VALUES (1, '2023-03-22', 'https://dolbot.s3.ap-northeast-2.amazonaws.com/1679576099594.jpg'),

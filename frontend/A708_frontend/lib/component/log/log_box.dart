@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 Widget LogBox({
-  required int index,
+  required String type,
   required String location,
+  required String applianceName,
   required String content,
-  required int endtime,
+  required String endtime,
+  required bool onoff,
 }) {
   return Column(
     children: [
@@ -12,9 +14,9 @@ Widget LogBox({
         width: 350,
         height: 80,
         decoration: BoxDecoration(
-          color: index == 1
+          color: type == '일정'
               ? Colors.yellow[100]
-              : index == 0
+              : type == '가전'
                   ? Colors.blue[50]
                   : Colors.grey[100],
         ),
@@ -28,9 +30,9 @@ Widget LogBox({
                 child: Container(
                   width: 70,
                   decoration: BoxDecoration(
-                      color: index == 1
+                      color: type == '비상'
                           ? Colors.red[400]
-                          : index == 0
+                          : type == '가전'
                               ? Colors.blue[400]
                               : Colors.green[400],
                       borderRadius: BorderRadius.circular(16)),
@@ -40,11 +42,23 @@ Widget LogBox({
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(location,
-                            style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white)),
+                        type == '비상'
+                            ? Text(location,
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white))
+                            : type == '일정'
+                                ? Text(location,
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white))
+                                : Text('가전',
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white)),
                       ],
                     ),
                   ),
@@ -52,16 +66,19 @@ Widget LogBox({
               ),
               Expanded(
                 child: Container(
-                    child: Text(
-                  content,
-                  style: TextStyle(fontSize: 15),
-                )),
+                  child: type == '가전'
+                      ? Text('${location} ${onoff.toString()}',
+                          style: TextStyle(fontSize: 15))
+                      : type == '일정'
+                          ? Text('${content}', style: TextStyle(fontSize: 15))
+                          : Text('비상', style: TextStyle(fontSize: 15)),
+                ),
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    endtime.toString(),
+                    endtime,
                   ),
                 ],
               ),
@@ -85,3 +102,4 @@ const rainbowColors = [
   Colors.indigo,
   Colors.purple
 ];
+Map<String, dynamic> APPLIANCE = {};

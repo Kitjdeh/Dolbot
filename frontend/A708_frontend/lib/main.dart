@@ -1,55 +1,31 @@
 import 'dart:convert';
-
-import 'package:dolbot/database/drift_database.dart';
 import 'package:dolbot/screen/home_screen.dart';
 import 'package:dolbot/screen/main/main_screen.dart';
+import 'package:dolbot/screen/splash_screen.dart';
 import 'package:dolbot/sockect/sockect.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:get_it/get_it.dart';
-
-const DEFALUT_COLORS = [
-  //빨강
-  'F44336',
-  //주황
-  'FF9800',
-  //노랑
-  'FFEB3B',
-  //초록
-  'FCAF50',
-  //파랑
-  '2196F3',
-  //남
-  '3F51B5',
-  //보라
-  '9C27B0'
-];
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 void main() async {
+  KakaoSdk.init(nativeAppKey: '2851dab63468fc5098929a40e856462c');
 
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting();
-  final database = LocalDatabase();
-  final colors = await database.getCategoryColors();
+  // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
-  GetIt.I.registerSingleton<LocalDatabase>(database);
-  if (colors.isEmpty) {
-    for (String hexCode in DEFALUT_COLORS) {
-      await database.createCategoryColor(
-        CategoryColorsCompanion(
-          hexCode: Value(hexCode),
-        ),
-      );
-    }
-  }
+  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  // FlutterNativeSplash.remove();
   runApp(
     MaterialApp(
         theme: ThemeData(fontFamily: 'Samsung'),
         debugShowCheckedModeBanner: false,
         initialRoute: '/',
         routes: {
-          '/': (context) => MainScreen(),
+          '/': (context) => SplashScreen(),
+          '/home': (context) => MainScreen(),
           // '/intro':(context) => IntroScreen(),
           // '/calendar': (context) => CalendarScreen(),
           // '/log':(context)=>LogScreen(),

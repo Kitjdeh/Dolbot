@@ -23,6 +23,14 @@ class _AirCleanerState extends State<AirCleaner> {
             width: 250,
             height: 250,
             decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.greenAccent[100]!,
+                    blurRadius: 10.0,
+                    spreadRadius: 5.0,
+                  )
+                ],
+
                 border: Border.all(color: Colors.greenAccent[100]!, width: 10.0),
                 color: Colors.greenAccent,
                 borderRadius: BorderRadius.circular(250.0)),

@@ -14,8 +14,8 @@ class Calendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final defaultBoxDeco = BoxDecoration(
-         borderRadius: BorderRadius.circular(30.0));
+    final defaultBoxDeco =
+        BoxDecoration(borderRadius: BorderRadius.circular(30.0));
     final defaultTextStyle = TextStyle(
       color: Colors.grey[600],
       fontWeight: FontWeight.w700,

@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ScheduleCard extends StatelessWidget {
-  final int startTime;
-  final int endTime;
+  final DateTime startTime;
   final String content;
-  final Color color;
-  const ScheduleCard(
-      {required this.color,
-        required this.endTime,
-        required this.startTime,
-        required this.content,
-        Key? key})
+  const ScheduleCard({required this.startTime, required this.content, Key? key})
       : super(key: key);
 
   @override
@@ -29,7 +23,7 @@ class ScheduleCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _Time(startTime: startTime, endTime: endTime),
+                _Time(startTime: startTime),
                 SizedBox(
                   width: 16.0,
                 ),
@@ -37,7 +31,6 @@ class ScheduleCard extends StatelessWidget {
                 SizedBox(
                   width: 16.0,
                 ),
-                _Category(color: color),
               ],
             ),
           ),
@@ -46,10 +39,9 @@ class ScheduleCard extends StatelessWidget {
 }
 
 class _Time extends StatelessWidget {
-  final int startTime;
-  final int endTime;
-  const _Time({required this.startTime, required this.endTime, Key? key})
-      : super(key: key);
+  final DateTime startTime;
+
+  const _Time({required this.startTime, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -58,17 +50,20 @@ class _Time extends StatelessWidget {
       color: Colors.blue,
       fontSize: 16.0,
     );
+    final formattedTime = DateFormat('HH:mm').format(startTime);
+    print('${formattedTime}formattedTime');
+    print(startTime);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '${startTime.toString().padLeft(2, '0')}:00',
-          style: textStyle,
+          '${formattedTime}',
+          style: textStyle.copyWith(fontSize: 30),
         ),
-        Text(
-          '${endTime.toString().padLeft(2, '0')}:00',
-          style: textStyle.copyWith(fontSize: 10.0),
-        ),
+        // Text(
+        //   '${endTime.toString().padLeft(2, '0')}:00',
+        //   style: textStyle.copyWith(fontSize: 10.0),
+        // ),
       ],
     );
   }
@@ -93,7 +88,7 @@ class _Category extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: color,
+        color: Colors.blue[100],
         shape: BoxShape.circle,
       ),
       width: 16.0,

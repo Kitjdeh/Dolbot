@@ -1,5 +1,6 @@
 import 'package:dolbot/component/cctv/cctv_auto_view.dart';
 import 'package:dolbot/component/cctv/cctv_manual_view.dart';
+import 'package:dolbot/component/cctv/cctv_view.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -26,7 +27,7 @@ class _CctvScreenState extends State<CctvScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Text('CCTV'),
-          Image.asset('asset/img/weather_cloud.gif'),
+          SizedBox(height: 300,child: CctvView()),
           FlutterToggleTab(
               width: 50,
               height: 30,

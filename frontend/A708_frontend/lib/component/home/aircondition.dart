@@ -58,6 +58,7 @@ class _AirConditionState extends State<AirCondition> {
                 initialValue: InitTemp,
                 onChange: (double value) {
                   setState(() {
+                    print(value);
                     InitTemp = value;
                   });
                 },

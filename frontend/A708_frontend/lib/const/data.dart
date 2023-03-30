@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const ROOM = ['안방', '화장실', '거실', '작은방'];
+const ROOM = ['안방', '화장실', '거실', '작은방','거실', '작은방'];
 const rainbowColors = [
   Colors.red,
   Colors.orange,

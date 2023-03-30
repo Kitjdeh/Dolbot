@@ -1,11 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
-
+import 'package:dolbot/component/alert/toast.dart';
 import 'package:dolbot/component/home/air_cleaner.dart';
 import 'package:dolbot/component/home/aircondition.dart';
 import 'package:dolbot/component/home/lamp_tv.dart';
 import 'package:dolbot/const/data.dart';
 import 'package:dolbot/sockect/sockect.dart';
 import 'package:flutter/material.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class MainAppliance extends StatefulWidget {
   const MainAppliance({Key? key}) : super(key: key);
@@ -17,45 +19,88 @@ class MainAppliance extends StatefulWidget {
 class _MainApplianceState extends State<MainAppliance>
     with TickerProviderStateMixin {
   late final TabController controller;
-  String _selectindex = "0";
+  IO.Socket? socket;
 
+  Map? Appliance;
+  final _appliancestatus = StreamController<Map>();
+  String _selectindex = "0";
+  @override
+  // void dispose() {
+  //   super.dispose();
+  //   _cctvimage.close();
+  // }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // Connect to the socket server
+  //   IO.Socket socket = IO.io('http://3.36.67.119:8081',
+  //       IO.OptionBuilder().setTransports(['websocket']).build());
+  //   socket.onConnect((_) {
+  //     print('apllicane connect');
+  //     // socket.emit('user_message', message);
+  //   });
+  //   // Listen for weather updates
+  //   socket.on('appliance_status', (data) {
+  //     print('33333 ${data.runtimeType}');
+  //     var ImageData = jsonDecode(data);
+  //     setState(() {
+  //       RosImage = Image.memory(ImageData);
+  //       _cctvimage.add(RosImage!);
+  //     });
+  //   });
+  // }
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: ROOM.length,
-        child: Scaffold(
-          appBar: AppBar(
-            bottom: PreferredSize(
-              preferredSize: Size.fromHeight(1),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  TabBar(
-                    indicatorColor: Colors.white,
-                    indicatorWeight: 4.0,
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    isScrollable: true,
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.grey[400],
-                    labelStyle: TextStyle(fontWeight: FontWeight.w700),
-                    unselectedLabelStyle:
-                        TextStyle(fontWeight: FontWeight.w100),
-                    tabs: ROOM
-                        .map((e) => Tab(
-                                child: Text(
-                              e,
-                            )))
-                        .toList(),
-                  ),
-                ],
-              ),
+      length: ROOM.length,
+      child: Scaffold(
+        appBar: AppBar(
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(1),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                TabBar(
+                  indicatorColor: Colors.white,
+                  indicatorWeight: 4.0,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  isScrollable: true,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.grey[400],
+                  labelStyle: TextStyle(fontWeight: FontWeight.w700),
+                  unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w100),
+                  tabs: ROOM
+                      .map((e) => Tab(
+                              child: Text(
+                            e,
+                          )))
+                      .toList(),
+                ),
+              ],
             ),
           ),
-          body: TabBarView(
-            // physics:,
-            children: APPLIANCE.map((e) => renderCount()).toList(),
-          ),
-        ));
+        ),
+        body: StreamBuilder<Map>(
+          stream: null,
+          builder: (context, snapshot) {
+            return TabBarView(
+              // physics:,
+              children: ROOM.map((e) => renderCount()).toList(),
+            );
+          }
+        ),
+      ),
+    );
+  }
+
+  Widget renderCount() {
+    return GridView.count(
+      crossAxisCount: 2,
+      children: ROOMINFO
+          .map((e) => renderContainer(
+              title: e.title, img: e.img, onoff: e.ONOFF, index: e.index))
+          .toList(),
+    );
   }
 
   Widget renderContainer({
@@ -73,17 +118,23 @@ class _MainApplianceState extends State<MainAppliance>
           onTap: () {
             setState(() {
               _selectindex = title;
-              showModalBottomSheet(
-                  context: context,
-                  builder: (_) {
-                    if (_selectindex == '에어컨') {
-                      return AirCondition();
-                    } else if (_selectindex == '공기청정기') {
-                      return AirCleaner();
-                    } else {
-                      return LampTv();
-                    }
-                  });
+              if (onoff == true) {
+                if (_selectindex == '에어컨') {
+                  showModalBottomSheet(
+                      context: context,
+                      builder: (_) {
+                        return AirCondition();
+                      });
+                } else if (_selectindex == '공기청정기') {
+                  {
+                    showModalBottomSheet(
+                        context: context,
+                        builder: (_) {
+                          return AirCleaner();
+                        });
+                  }
+                }
+              }
             });
           },
           child: Container(
@@ -99,30 +150,7 @@ class _MainApplianceState extends State<MainAppliance>
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Switch(
-                          value: onoff,
-                          onChanged: (value) {
-                            Map<String, dynamic> A = {
-                              'type': 'user',
-                              'id': 1,
-                              'to': 1,
-                              'message': {
-                                'room': 1,
-                                'device': 'tv',
-                                'status': 'on'
-                              }
-                            };
-                            String test = jsonEncode(A);
-                            connectAndListen(test);
-
-                            setState(() {
-                              onoff = value;
-                            });
-                          },
-                          activeTrackColor: Colors.blue,
-                        )
-                      ],
+                      children: [SwitchStream(onoff: 'off')],
                     ),
                     Container(
                         decoration: BoxDecoration(
@@ -154,16 +182,6 @@ class _MainApplianceState extends State<MainAppliance>
 
   Widget selectCount() {
     return AirCondition();
-  }
-
-  Widget renderCount() {
-    return GridView.count(
-      crossAxisCount: 2,
-      children: ROOMINFO
-          .map((e) => renderContainer(
-              title: e.title, img: e.img, onoff: e.ONOFF, index: e.index))
-          .toList(),
-    );
   }
 
   Future<bool> getNumber(onoff) async {
@@ -204,3 +222,31 @@ const ROOMINFO = [
   RoomInfo(title: '조명', img: 'asset/img/lamp_on.png', ONOFF: true, index: 2),
   RoomInfo(title: 'TV', img: 'asset/img/tv_on.png', ONOFF: true, index: 3),
 ];
+
+class SwitchStream extends StatelessWidget {
+  final String onoff;
+  const SwitchStream({required this.onoff, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        child: Switch(
+      value: onoff == 'on' ? true : false,
+      onChanged: (value) {
+        Map<String, dynamic> A = {
+          'type': 'user',
+          'id': 1,
+          'to': 1,
+          'message': {'room': 'living_room', 'device': 'tv', 'status': 'ON'}
+        };
+        String test = jsonEncode(A);
+        SendMessage(test);
+
+        // setState(() {
+        //   onoff = value;
+        // });
+      },
+      activeTrackColor: Colors.blue,
+    ));
+  }
+}

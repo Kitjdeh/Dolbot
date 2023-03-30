@@ -1,17 +1,27 @@
 import 'package:dolbot/component/calendar/text_field.dart';
-import 'package:drift/drift.dart' show Value;
+import 'package:dolbot/restapi/calendar_rest_api.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
-import 'package:dolbot/database/drift_database.dart';
+import 'package:intl/intl.dart';
 
 class SchedulBottomSheet extends StatefulWidget {
   final DateTime selectedDate;
   final int? scheduleId;
-
+  final int? homeId;
+  final int? scheduleTime;
+  final String? content;
+  final String? startDate;
+  final String? endDate;
   const SchedulBottomSheet(
-      {required this.selectedDate, this.scheduleId, Key? key})
+      {required this.selectedDate,
+      this.scheduleId,
+      required this.homeId,
+      required this.scheduleTime,
+      required this.content,
+      required this.startDate,
+      required this.endDate,
+      Key? key})
       : super(key: key);
 
   @override
@@ -19,109 +29,155 @@ class SchedulBottomSheet extends StatefulWidget {
 }
 
 class _SchedulBottomSheetState extends State<SchedulBottomSheet> {
-  final GlobalKey<FormState> formKey = GlobalKey();
-  int? startTime;
-  int? endTime;
+  String? yearMonthDayTime;
   String? content;
-  int? selectedColorId;
+  DateTime? selectedday;
+  DateTime? SelectedTime;
+  final GlobalKey<FormState> formKey = GlobalKey();
+  GlobalKey<FormState> _fKey = GlobalKey<FormState>();
+
+  TextEditingController ymdtController = TextEditingController();
+  bool autovalidate = false;
+
+  yearMonthDayTimePicker() async {
+    final year = DateTime.now().year;
+    String hour, min;
+
+    final DateTime? dateTime = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(year),
+      lastDate: DateTime(year + 10),
+    );
+
+    if (dateTime != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay(hour: 0, minute: 0),
+      );
+      if (pickedTime != null) {
+        if (pickedTime.hour < 10) {
+          hour = '0' + pickedTime.hour.toString();
+        } else {
+          hour = pickedTime.hour.toString();
+        }
+
+        if (pickedTime.minute < 10) {
+          min = '0' + pickedTime.minute.toString();
+        } else {
+          min = pickedTime.minute.toString();
+        }
+
+        setState(() {
+          selectedday = dateTime;
+          SelectedTime = DateTime(selectedday!.year, selectedday!.month,
+              selectedday!.day, pickedTime.hour, pickedTime.minute);
+        });
+
+        // print('${selectedday.runtimeType}');
+        // print('${SelectedTime!.runtimeType}');
+        print(SelectedTime!.minute);
+        ymdtController.text = '${dateTime.toString().split(' ')[0]} $hour:$min';
+        // print('${ymdtController.text}');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).requestFocus(FocusNode());
-      },
-      child: FutureBuilder<Schedule>(
-          future: widget.scheduleId == null
-              ? null
-              : GetIt.I<LocalDatabase>().getScheduleById(widget.scheduleId!),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(
-                child: Text('불러올 수 없음'),
-              );
-            }
-// FutureBuilder 처음 실행 됐고
-// 로딩 중일 때
-            if (snapshot.connectionState != ConnectionState.none &&
-                !snapshot.hasData) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-// future가 실행이 되고
-// 값이 있는데 단 한번도 start time이 세팅 되지 않았을 때
-            if (snapshot.hasData && startTime == null) {
-              startTime = snapshot.data!.startTime;
-              endTime = snapshot.data!.endTime;
-              content = snapshot.data!.content;
-              selectedColorId = snapshot.data!.colorId;
-            }
-            return SafeArea(
-              child: Container(
-                color: Colors.white,
-                height: MediaQuery.of(context).size.height / 2 + bottomInset,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: bottomInset),
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0),
-                    child: Form(
-                      key: formKey,
-                      // autovalidateMode: AutovalidateMode.always,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _Time(
-                            onStartSaved: (String? val) {
-                              startTime = int.parse(val!);
-                            },
-                            onEndSaved: (String? val) {
-                              endTime = int.parse(val!);
-                            },
-                            startInitialValue: startTime?.toString() ?? '',
-                            endInitialValue: endTime?.toString() ?? '',
-                          ),
-                          SizedBox(height: 16.0),
-                          _content(
-                            onSaved: (String? val) {
-                              content = val;
-                            },
-                            initialValue: content ?? '',
-                          ),
-                          // SizedBox(height: 16.0),
-                          FutureBuilder<List<CategoryColor>>(
-                              future:
-                                  GetIt.I<LocalDatabase>().getCategoryColors(),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData &&
-                                    selectedColorId == null &&
-                                    snapshot.data!.isNotEmpty) {
-                                  selectedColorId = snapshot.data![0].id;
-                                }
-                                return _ColorPicker(
-                                  colors:
-                                      snapshot.hasData ? snapshot.data! : [],
-                                  colorIdSetter: (int id) {
-                                    setState(() {
-                                      selectedColorId = id;
-                                    });
-                                  },
-                                  selectedColorId: selectedColorId,
-                                );
-                              }),
-                          SizedBox(height: 8.0),
-                          _SaveButton(
-                            onPressed: onSavePressed,
-                          ),
-                        ],
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        child: SafeArea(
+          child: Container(
+            color: Colors.white,
+            height: MediaQuery.of(context).size.height / 2 + bottomInset,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: Padding(
+                padding: EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0),
+                child: Form(
+                  key: formKey,
+                  // autovalidateMode: AutovalidateMode.always,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '시간을 입력하세요',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
+                      SizedBox(
+                        height: 80,
+                        child: GestureDetector(
+                          onTap: yearMonthDayTimePicker,
+                          child: AbsorbPointer(
+                            child: TextFormField(
+                              autovalidateMode: AutovalidateMode.always,
+                              controller: ymdtController,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                filled: true,
+                                fillColor: Colors.blue[100],
+                                // suffixText: isTime ? '' : null,
+                              ),
+                              onSaved: (val) {
+                                setState(() {
+                                  yearMonthDayTime = ymdtController.text;
+                                });
+                              },
+                              validator: (val) {
+                                if (val == null || val.isEmpty) {
+                                  return 'Year-Month-Date-Time is necessary';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                        // _Time(
+                        //   onStartSaved: (String? val) {
+                        //     startTime = DateTime.parse(val!);
+                        //   },
+                        //   onEndSaved: (String? val) {
+                        //     endTime = DateTime.parse(val!);
+                        //     // endTime = int.parse(val!);
+                        //   },
+                        //   startInitialValue: DateTime(
+                        //     DateTime.now().year,
+                        //     DateTime.now().month,
+                        //     DateTime.now().day,
+                        //   ),
+                        //   endInitialValue: DateTime.now(),
+                        //   // endInitialValue: endTime?.toString() ?? '',
+                        // ),
+                      ),
+                      SizedBox(height: 16.0),
+                      _content(
+                        onSaved: (String? val) {
+                          setState(() {
+                            content = val;
+                          });
+                        },
+                        initialValue: '',
+                      ),
+                      // SizedBox(height: 16.0),
+
+                      SizedBox(height: 8.0),
+                      _SaveButton(
+                        onPressed: onSavePressed,
+                      ),
+                    ],
                   ),
                 ),
               ),
-            );
-          }),
-    );
+            ),
+          ),
+        ));
   }
 
   void onSavePressed() async {
@@ -133,28 +189,35 @@ class _SchedulBottomSheetState extends State<SchedulBottomSheet> {
     //모든 state를 다  동시에 validate  진행한다.
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
-      if (widget.scheduleId == null) {
-        await GetIt.I<LocalDatabase>().createSchedule(
-          SchedulesCompanion(
-            date: Value(widget.selectedDate),
-            startTime: Value(startTime!),
-            endTime: Value(endTime!),
-            content: Value(content!),
-            colorId: Value(selectedColorId!),
-          ),
-        );
-      } else {
-        await GetIt.I<LocalDatabase>().updateScheduleById(
-            widget.scheduleId!,
-            SchedulesCompanion(
-              date: Value(widget.selectedDate),
-              startTime: Value(startTime!),
-              endTime: Value(endTime!),
-              content: Value(content!),
-              colorId: Value(selectedColorId!),
-            ));
-      }
+      DateTime outputDateTime2 = DateTime(
+        SelectedTime!.year,
+        SelectedTime!.month,
+        SelectedTime!.day,
+        SelectedTime!.hour, // Hour in 24-hour format
+        SelectedTime!.minute, // Minute
+        0, // Second
+        0, // Millisecond
+      ).toUtc();
 
+      String formattedDateTime = outputDateTime2.toIso8601String();
+      formattedDateTime = formattedDateTime.replaceFirst(RegExp(r'Z$'), '+09:00');
+      print(formattedDateTime);
+      DateFormat outputDateFormat = DateFormat("yyyy-MM-dd");
+      String startdate = outputDateFormat.format(SelectedTime!);
+      String enddate = startdate;
+      String scheduleTime = formattedDateTime;
+      String Content = content!;
+      int homeId = 1;
+      var data = {
+        "startDate": startdate,
+        "endDate": enddate,
+        "scheduleTime": scheduleTime,
+        "content": Content,
+        "homeId": homeId
+      };
+      print(data);
+      // print(data);
+      postSchedule(data);
       Navigator.of(context).pop();
     }
 
@@ -168,8 +231,8 @@ class _SchedulBottomSheetState extends State<SchedulBottomSheet> {
 class _Time extends StatelessWidget {
   final FormFieldSetter<String> onStartSaved;
   final FormFieldSetter<String> onEndSaved;
-  final String startInitialValue;
-  final String endInitialValue;
+  final DateTime startInitialValue;
+  final DateTime endInitialValue;
   const _Time(
       {required this.endInitialValue,
       required this.startInitialValue,
@@ -185,8 +248,8 @@ class _Time extends StatelessWidget {
         Expanded(
             child: CustomTextField(
           onSaved: onStartSaved,
-          initialValue: startInitialValue,
-          label: '시작시간',
+          initialValue: DateFormat('yyyy.MM.dd').format(startInitialValue),
+          label: '시작일',
           isTime: true,
         )),
         SizedBox(
@@ -194,9 +257,9 @@ class _Time extends StatelessWidget {
         ),
         Expanded(
             child: CustomTextField(
-          initialValue: endInitialValue,
+          initialValue: DateFormat('yyyy.MM.dd').format(endInitialValue),
           onSaved: onEndSaved,
-          label: '마감시간',
+          label: '종료일',
           isTime: true,
         ))
       ],
@@ -219,57 +282,6 @@ class _content extends StatelessWidget {
         label: '내용',
         isTime: false,
       ),
-    );
-  }
-}
-
-typedef ColorIdSetter = void Function(int id);
-
-class _ColorPicker extends StatelessWidget {
-  final List<CategoryColor> colors;
-  final int? selectedColorId;
-  final ColorIdSetter colorIdSetter;
-  const _ColorPicker(
-      {required this.colorIdSetter,
-      required this.selectedColorId,
-      required this.colors,
-      Key? key})
-      : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8.0,
-      runSpacing: 10.0,
-      children: colors
-          .map(
-            (e) => GestureDetector(
-              onTap: () {
-                colorIdSetter(e.id);
-              },
-              child: renderColor(
-                e,
-                selectedColorId == e.id,
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  Widget renderColor(CategoryColor color, bool isSelected) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color(
-          int.parse(
-            'FF${color.hexCode}',
-            radix: 16,
-          ),
-        ),
-        border: isSelected ? Border.all(color: Colors.black, width: 4.0) : null,
-      ),
-      width: 32.0,
-      height: 32.0,
     );
   }
 }

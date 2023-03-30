@@ -9,12 +9,13 @@ import struct
 import binascii
 import socketio
 import json
-from time import sleep
+import time
 from nav_msgs.msg import Path
 from ssafy_msgs.msg import EnviromentStatus
 from geometry_msgs.msg import Pose, PoseStamped, Twist
+import os
 
-from . import iot_udp
+file_path = os.getcwd()+"/appliance.json"
 
 air_conditioner = {  # 에어컨
     "mode": {
@@ -58,9 +59,9 @@ air_condition = {  # 날씨에 따른 기본 공기 질
 # 환경변수
 out_temp = 0
 out_hum = 0
-in_temp = 0
-in_hum = 0
-air = 0
+in_temp = None
+in_hum = None
+air =0
 environment = ''
 
 before_environment = 'bad'
@@ -84,11 +85,13 @@ class weather_pub(Node):
         self.envir_msg = msg
         global out_temp, out_hum, environment, in_temp, in_hum, air, before_environment
         out_temp = msg.temperature
-        in_temp = out_temp
+        if in_temp == None:
+            in_temp = out_temp
         environment = msg.weather
         air = air_condition[environment]
         out_hum = humidity[environment]
-        in_hum = out_hum
+        if in_hum == None:
+            in_hum = out_hum
         self.get_weather = True
         if environment != before_environment:
             print("setting complete")
@@ -96,48 +99,53 @@ class weather_pub(Node):
             self.publish_weather()
 
     def set_envir(self):  # 에어컨/공기청정기 작동여부에 따른 실내환경 설정
-        global in_temp, in_hum, air
-        if self.get_weather == True:
-            aircon_status = iot_udp.appliance["living_room"]["air_conditioner"]
-            if aircon_status["status"] == "ON":
-                in_temp += air_conditioner["mode"][aircon_status["mode"]] * \
-                    air_conditioner["speed"][aircon_status["speed"]]
-                if aircon_status["mode"] == "cool" and in_temp < aircon_status["target"]:
-                    in_temp = aircon_status["target"]
-                elif aircon_status["mode"] == "warm" and in_temp > aircon_status["target"]:
-                    in_temp = aircon_status["target"]
+        while True:
+            global in_temp, in_hum, air
+            if self.get_weather == True:
+                with open(file_path, 'r') as file:
+                    appliance = json.load(file)
+                aircon_status = appliance["living_room"]["air_conditioner"]
+                if aircon_status["status"] == "ON":
+                    print("air_ON")
+                    in_temp += air_conditioner["mode"][aircon_status["mode"]] * \
+                        air_conditioner["speed"][aircon_status["speed"]]
+                    if aircon_status["mode"] == "cool" and in_temp < aircon_status["target"]:
+                        in_temp = aircon_status["target"]
+                    elif aircon_status["mode"] == "warm" and in_temp > aircon_status["target"]:
+                        in_temp = aircon_status["target"]
 
-                # 제습모드
-                if aircon_status["mode"] == "dry":
-                    in_hum -= air_conditioner["speed"][aircon_status["speed"]]
-                    if in_hum < 20:
-                        in_hum = 20
-                else:
+                    # 제습모드
+                    if aircon_status["mode"] == "dry":
+                        in_hum -= air_conditioner["speed"][aircon_status["speed"]]
+                        if in_hum < 20:
+                            in_hum = 20
+                    else:
+                        in_hum += 1
+                        if in_hum > out_hum:
+                            in_hum = out_hum
+
+                elif in_temp != out_temp:
+                    in_temp += (out_temp-in_temp)/abs(out_temp-in_temp)
+                    if in_temp > out_temp:
+                        in_temp = out_temp
                     in_hum += 1
                     if in_hum > out_hum:
                         in_hum = out_hum
 
-            elif in_temp != out_temp:
-                in_temp += (out_temp-in_temp)/abs(out_temp-in_temp)
-                if in_temp > out_temp:
-                    in_temp = out_temp
-                in_hum += 1
-                if in_hum > out_hum:
-                    in_hum = out_hum
+                air_clean_status = appliance["inner_room"]["air_cleaner"]
 
-            air_clean_status = iot_udp.appliance["inner_room"]["air_cleaner"]
+                if air_clean_status["status"] == "ON":
+                    air -= air_cleaner["mode"][air_clean_status["mode"]]
+                else:
+                    air += 1
+                    if air > air_condition[self.envir_msg.weather]:
+                        air = air_condition[self.envir_msg.weather]
 
-            if air_clean_status["status"] == "ON":
-                air -= air_cleaner["mode"][air_clean_status["mode"]]
+                self.publish_weather()
+                print("emit!!!")
+                time.sleep(10)
             else:
-                air += 1
-                if air > air_condition[self.envir_msg.weather]:
-                    air = air_condition[self.envir_msg.weather]
-
-            self.publish_weather()
-            sleep(10)
-        else:
-            sleep(0.5)
+                time.sleep(1)
 
     def publish_weather(self):
         if self.get_weather == True:

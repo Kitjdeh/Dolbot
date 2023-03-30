@@ -1,0 +1,63 @@
+{
+	"living_room": {
+		"light": {
+			"status": "OFF"
+		},
+		"air_conditioner": {
+			"room": "living_room",
+			"device": "air_conditioner",
+			"status": "OFF",
+			"target": 18,
+			"mode": "cool",
+			"speed": "mid"
+		},
+		"tv": {
+			"status": "OFF"
+		}
+	},
+	"inner_room": {
+		"light": {
+			"status": "OFF"
+		},
+		"air_conditioner": {
+			"status": "OFF",
+			"mode": "cool",
+			"speed": "mid"
+		},
+		"air_cleaner": {
+			"status": "OFF",
+			"mode": "high"
+		}
+	},
+	"library": {
+		"light": {
+			"status": "OFF"
+		},
+		"air_cleaner": {
+			"status": "OFF"
+		}
+	},
+	"small_room": {
+		"light": {
+			"status": "OFF"
+		},
+		"air_conditioner": {
+			"status": "OFF",
+			"mode": "cool",
+			"speed": "mid"
+		},
+		"tv": {
+			"status": "OFF"
+		}
+	},
+	"toilet": {
+		"light": {
+			"status": "OFF"
+		}
+	},
+	"entrance": {
+		"light": {
+			"status": "OFF"
+		}
+	}
+}

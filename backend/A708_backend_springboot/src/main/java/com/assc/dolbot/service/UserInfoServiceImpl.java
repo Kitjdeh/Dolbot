@@ -18,8 +18,7 @@ public class UserInfoServiceImpl implements UserInfoService{
 		UserInfoDto dto;
 		if(userInfo == null){
 			System.out.println("회원가입");
-			userInfoRepository.save(userInfoDto.toEntity());
-			userInfo = userInfoRepository.findByKakaoId(userInfoDto.getKakaoId());
+			userInfo = userInfoRepository.save(userInfoDto.toEntity());
 			dto = userInfo.toDto();
 			dto.setNew(true);
 		}else {

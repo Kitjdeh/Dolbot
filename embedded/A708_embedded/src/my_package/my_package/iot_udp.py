@@ -169,11 +169,17 @@ class iot_udp(Node):
                 print("complete")
 
                 # 가전제어 완료 로그 POST 요청 
+
+                file_path=os.path.dirname(os.path.realpath(__file__))
+                f = open(file_path+"/data/loglistid.txt", 'r')
+                loglistid = f.read() 
+                f.close()
+
                 now_time = time()
                 now_time=localtime(now_time)
                 body = {
                     "applianceId": appliance_mapping[device_name],  # 가전기기마다 번호 매핑
-                    "logListId": 1,  # 최초 사진 찍을 때 loglistid 생성 => 받아와서 값 넣어주기 
+                    "logListId": loglistid,  # 최초 사진 찍을 때 loglistid 생성 => 받아와서 값 넣어주기 
                     "logTime": str(now_time.tm_hour)+":"+str(now_time.tm_min)+":"+str(now_time.tm_sec),
                     "on": True if status=='ON' else False,
                     "roomId": room_mapping[room_name]  # 방마다 번호 매핑
@@ -183,6 +189,7 @@ class iot_udp(Node):
                     headers={'Content-Type': 'application/json', 'charset': 'UTF-8', 'Accept': '*/*'},
                     data=json.dumps(body)
                 )
+                print(loglistid)
                 print(res)
 
             else:

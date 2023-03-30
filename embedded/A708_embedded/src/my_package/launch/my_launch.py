@@ -24,5 +24,11 @@ def generate_launch_description():
             package='my_package',
             node_executable='load_map',
             node_name='load_map'
-        )
+        ),
+
+        # Node(
+        #     package='my_package',
+        #     node_executable='perception',
+        #     node_name='create_logListId'
+        # ),
     ])

@@ -25,7 +25,8 @@ setup(
             'local_path = my_package.global_to_local_path:main',
             'drive = my_package.follow_the_carrot:main',
             'appliance_ctrl = my_package.iot_udp:main',
-            'load_map = my_package.load_map:main'
+            'load_map = my_package.load_map:main',
+            'perception = my_package.create_logListId:main',
         ],
     },
 )

@@ -46,18 +46,43 @@ class Schedule(Node):
         thread.start()
 
     def tts(self):
-        for r in self.res:
-            schedule_time = r['scheduleTime']
+
+        idx=0
+        while True:
+
+            if idx==len(self.res):
+                break
+
+            now_time = time.time()
+            now_time=localtime(now_time)
+            print(now_time)
+
+            schedule_time = self.res[idx]['scheduleTime']
             print(schedule_time)
             schedule_time_sec = schedule_time // 1000
             schedule_datetime = datetime.datetime.fromtimestamp(schedule_time_sec)
             hour, minutes = schedule_datetime.hour, schedule_datetime.minute
-            print(schedule_datetime)
-            print(hour)
-            print(minutes)
-            print(r['content'])
-            speak(r['content'])
+
+            print(now_time.tm_hour, now_time.tm_min, hour, minutes)
+            if now_time.tm_hour == hour and now_time.tm_min == minutes:
+                print(self.res[idx]['content'])
+                speak(self.res[idx]['content'])
+                idx+=1
+            
             time.sleep(10)
+
+        # for r in self.res:
+        #     schedule_time = r['scheduleTime']
+        #     print(schedule_time)
+        #     schedule_time_sec = schedule_time // 1000
+        #     schedule_datetime = datetime.datetime.fromtimestamp(schedule_time_sec)
+        #     hour, minutes = schedule_datetime.hour, schedule_datetime.minute
+        #     print(schedule_datetime)
+        #     print(hour)
+        #     print(minutes)
+        #     print(r['content'])
+        #     speak(r['content'])
+        #     time.sleep(20)
 
 def main(args=None):
 

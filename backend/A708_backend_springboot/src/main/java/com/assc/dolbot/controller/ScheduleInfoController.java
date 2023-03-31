@@ -27,28 +27,25 @@ public class ScheduleInfoController {
 	@PostMapping
 	public ResponseEntity<String> scheduleInfoAdd(@RequestBody ScheduleInfoDto scheduleInfoDto) {
 		try{
-			System.out.println("SUCCESS");
 			scheduleInfoService.addScheduleInfo(scheduleInfoDto);
 			return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
 		}catch(Exception e){
-			System.out.println("FAIL");
 			e.printStackTrace();
-			System.out.println(scheduleInfoDto);
 			return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	// 날짜에 맞는 스케줄 불러오기
-	// Map 구성요소 : date
 	@GetMapping("/{home_id}")
 	public ResponseEntity<List<ScheduleInfoDto>> scheduleInfoList(@PathVariable("home_id") int homeId, @RequestParam("localDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate localDate){
 
-		List<ScheduleInfoDto> list = new ArrayList<>();
+		List<ScheduleInfoDto> scheduleInfoDtoList = new ArrayList<>();
 		try{
-			list = scheduleInfoService.findScheduleInfoList(homeId, localDate);
-			return new ResponseEntity<List<ScheduleInfoDto>>(list, HttpStatus.OK);
+			scheduleInfoDtoList = scheduleInfoService.findScheduleInfoList(homeId, localDate);
+			return new ResponseEntity<List<ScheduleInfoDto>>(scheduleInfoDtoList, HttpStatus.OK);
 		}catch(Exception e){
-			return new ResponseEntity<List<ScheduleInfoDto>>(list, HttpStatus.INTERNAL_SERVER_ERROR);
+			e.printStackTrace();
+			return new ResponseEntity<List<ScheduleInfoDto>>(scheduleInfoDtoList, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -59,6 +56,7 @@ public class ScheduleInfoController {
 			scheduleInfoService.modifyScheduleInfo(scheduleInfoId, scheduleInfoDto);
 			return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
 		}catch(Exception e){
+			e.printStackTrace();
 			return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -70,6 +68,7 @@ public class ScheduleInfoController {
 			scheduleInfoService.removeScheduleInfo(scheduleInfoId);
 			return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
 		}catch(Exception e){
+			e.printStackTrace();
 			return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

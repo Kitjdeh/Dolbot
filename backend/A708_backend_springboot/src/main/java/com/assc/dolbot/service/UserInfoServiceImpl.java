@@ -1,5 +1,6 @@
 package com.assc.dolbot.service;
 
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ public class UserInfoServiceImpl implements UserInfoService{
 
 	@Override
 	public UserInfoDto loginUserInfo(UserInfoDto userInfoDto) throws Exception {
-		UserInfo userInfo = userInfoRepository.findByKakaoId(userInfoDto.getKakaoId());
+		UserInfo userInfo = userInfoRepository.findByEmail(userInfoDto.getEmail());
 		if(userInfo == null){
 			userInfo = userInfoRepository.save(userInfoDto.toEntity());
 			userInfoDto = userInfo.toDto();
@@ -23,5 +24,12 @@ public class UserInfoServiceImpl implements UserInfoService{
 			userInfoDto = userInfo.toDto();
 		}
 		return userInfoDto;
+	}
+
+	@Override
+	public void modifyUserInfo(int userId, UserInfoDto userInfoDto) throws Exception {
+		UserInfo userInfo = userInfoRepository.findById(userId).get();
+		userInfo.setMain_home_id(userInfoDto.getMain_home_id());
+		userInfoRepository.save(userInfo);
 	}
 }

@@ -6,7 +6,8 @@ USE dolbot;
 
 CREATE TABLE user_info (
   user_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  kakao_id INT UNSIGNED UNIQUE NOT NULL,
+  email VARCHAR(50) UNIQUE NOT NULL,
+  main_home_id INT UNSIGNED NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -107,9 +108,9 @@ CREATE TABLE schedule_log (
   FOREIGN KEY (log_list_id) REFERENCES log_list(log_list_id)
 );
 
-INSERT INTO user_info (kakao_id)
-VALUES (1),
-       (2);
+INSERT INTO user_info (email, main_home_id)
+VALUES ("kjm@naver.com", 1),
+       ("kdw@naver.com", 2);
        
 INSERT INTO home (robot_number, location)
 VALUES (10, '서울'),

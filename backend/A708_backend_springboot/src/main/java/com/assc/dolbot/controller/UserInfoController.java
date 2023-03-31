@@ -21,13 +21,12 @@ public class UserInfoController {
 	// 로그인, 회원가입
 	@PostMapping("/login")
 	public ResponseEntity<UserInfoDto> userLogin(@RequestBody UserInfoDto userInfoDto) {
-		UserInfoDto user = new UserInfoDto();
 		try{
-			user = userInfoService.loginUserInfo(userInfoDto);
-			return new ResponseEntity<UserInfoDto>(user, HttpStatus.OK);
+			userInfoDto = userInfoService.loginUserInfo(userInfoDto);
+			return new ResponseEntity<UserInfoDto>(userInfoDto, HttpStatus.OK);
 		}catch(Exception e){
-			return new ResponseEntity<UserInfoDto>(user, HttpStatus.INTERNAL_SERVER_ERROR);
+			e.printStackTrace();
+			return new ResponseEntity<UserInfoDto>(userInfoDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
 }

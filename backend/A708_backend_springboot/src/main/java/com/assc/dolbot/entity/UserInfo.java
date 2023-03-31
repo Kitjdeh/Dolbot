@@ -36,7 +36,7 @@ public class UserInfo {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int userId;
 
-	@Column(nullable = false)
+	@Column(nullable = false, unique = true)
 	private int kakaoId;
 
 	@CreatedDate
@@ -44,6 +44,7 @@ public class UserInfo {
 	private LocalDateTime createdAt;
 
 	@LastModifiedDate
+	@Column(nullable = false)
 	private LocalDateTime updatedAt;
 
 	public UserInfoDto toDto() {

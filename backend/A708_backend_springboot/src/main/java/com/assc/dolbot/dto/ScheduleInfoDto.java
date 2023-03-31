@@ -23,12 +23,9 @@ import lombok.ToString;
 public class ScheduleInfoDto {
 	private int scheduleId;
 	private int homeId;
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private Date scheduleTime;
 	private String content;
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private LocalDate startDate;
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private LocalDate endDate;
 
 	public ScheduleInfo toEntity(){

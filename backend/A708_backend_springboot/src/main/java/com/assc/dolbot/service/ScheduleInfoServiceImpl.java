@@ -22,10 +22,6 @@ public class ScheduleInfoServiceImpl implements ScheduleInfoService{
 	@Override
 	public void addScheduleInfo(ScheduleInfoDto scheduleInfoDto) throws Exception {
 		Date scheduleTime = scheduleInfoDto.getScheduleTime();
-		// LocalDateTime localDateTime = scheduleTime.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-		// LocalDateTime updatedDateTime = localDateTime.minusHours(9);
-		// ZonedDateTime zonedDateTime = updatedDateTime.atZone(ZoneId.systemDefault());
-		// scheduleTime = Date.from(zonedDateTime.toInstant());
 		LocalDate startDate = scheduleInfoDto.getStartDate();
 		LocalDate endDate = scheduleInfoDto.getEndDate();
 
@@ -38,22 +34,18 @@ public class ScheduleInfoServiceImpl implements ScheduleInfoService{
 			cal.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
 			scheduleTime = cal.getTime();
 			scheduleInfoDto.setScheduleTime(scheduleTime);
-			System.out.println("cal" + cal.toString());
-			System.out.println("cal.get"+cal.getTime());
-			System.out.println("st"+scheduleTime);
-			System.out.println("dto"+scheduleInfoDto);
 			scheduleInfoRepository.save(scheduleInfoDto.toEntity());
 		}
 	}
 
 	@Override
 	public List<ScheduleInfoDto> findScheduleInfoList(int homeId, LocalDate localDate) throws Exception {
-		List<ScheduleInfo> list = scheduleInfoRepository.findByHomeIdAndDate(homeId, localDate);
-		List<ScheduleInfoDto> dtoList = new ArrayList<>();
-		for(int i=0; i<list.size(); i++){
-			dtoList.add(list.get(i).toDto());
+		List<ScheduleInfo> scheduleInfoList = scheduleInfoRepository.findByHomeIdAndDate(homeId, localDate);
+		List<ScheduleInfoDto> scheduleInfoDtoList = new ArrayList<>();
+		for(int i=0; i<scheduleInfoList.size(); i++){
+			scheduleInfoDtoList.add(scheduleInfoList.get(i).toDto());
 		}
-		return dtoList;
+		return scheduleInfoDtoList;
 	}
 
 	// 모든 entity 추가후 save 한번으로 업데이트 가능한지 확인 필요!!
@@ -63,7 +55,6 @@ public class ScheduleInfoServiceImpl implements ScheduleInfoService{
 		ScheduleInfo scheduleInfo = scheduleInfoRepository.findById(scheduleInfoId).get();
 		scheduleInfo.setContent(scheduleInfoDto.getContent());
 		scheduleInfo.setScheduleTime(scheduleInfoDto.getScheduleTime());
-		System.out.println(scheduleInfo);
 		scheduleInfoRepository.save(scheduleInfo);
 	}
 

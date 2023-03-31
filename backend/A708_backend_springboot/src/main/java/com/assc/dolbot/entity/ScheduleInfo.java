@@ -47,7 +47,7 @@ public class ScheduleInfo {
 	@Column(nullable = false)
 	private Date scheduleTime;
 
-	@Column(nullable = false)
+	@Column(nullable = false, length = 100)
 	private String content;
 
 	@CreatedDate
@@ -55,6 +55,7 @@ public class ScheduleInfo {
 	private LocalDateTime createdAt;
 
 	@LastModifiedDate
+	@Column(nullable = false)
 	private LocalDateTime updatedAt;
 
 	public ScheduleInfoDto toDto(){

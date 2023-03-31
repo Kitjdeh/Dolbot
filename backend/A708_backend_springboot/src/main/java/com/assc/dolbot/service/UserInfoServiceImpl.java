@@ -15,15 +15,13 @@ public class UserInfoServiceImpl implements UserInfoService{
 	@Override
 	public UserInfoDto loginUserInfo(UserInfoDto userInfoDto) throws Exception {
 		UserInfo userInfo = userInfoRepository.findByKakaoId(userInfoDto.getKakaoId());
-		UserInfoDto dto;
 		if(userInfo == null){
-			System.out.println("회원가입");
 			userInfo = userInfoRepository.save(userInfoDto.toEntity());
-			dto = userInfo.toDto();
-			dto.setNew(true);
+			userInfoDto = userInfo.toDto();
+			userInfoDto.setNew(true);
 		}else {
-			dto = userInfo.toDto();
+			userInfoDto = userInfo.toDto();
 		}
-		return dto;
+		return userInfoDto;
 	}
 }

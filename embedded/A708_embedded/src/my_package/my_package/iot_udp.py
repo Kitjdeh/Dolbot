@@ -169,7 +169,8 @@ class iot_udp(Node):
                 print("complete")
 
                 # 가전제어 완료 로그 POST 요청 
-                file_path=os.path.dirname(os.path.realpath(__file__))
+                # file_path=os.path.dirname(os.path.realpath(__file__))
+                file_path = os.getcwd() 
                 f = open(file_path+"/data/loglistid.txt", 'r')
                 loglistid = f.read() 
                 f.close()

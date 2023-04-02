@@ -52,8 +52,9 @@ class IMGParser(Node):
         }
         sio.emit('video', json.dumps(video))        
 
-        file_path=os.path.dirname(os.path.realpath(__file__))
-        # print(file_path)
+        # file_path=os.path.dirname(os.path.realpath(__file__))
+        file_path = os.getcwd() 
+        print(file_path)
         if (self.cnt == 100) :
             cv2.imwrite(file_path+"/img/img_"+str(now_time.tm_year)+str(now_time.tm_mon)+str(now_time.tm_mday)+".PNG", img_bgr)
 

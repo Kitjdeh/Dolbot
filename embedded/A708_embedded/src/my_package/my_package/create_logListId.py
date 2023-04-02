@@ -20,7 +20,7 @@ now_time=localtime(now_time)
 sio = socketio.Client()
 
 # URL
-url = "http://3.36.67.119:8080/api/v1/log/log-lists"
+url = "https://j8a708.p.ssafy.io/api/v1/log/log-lists"
 
 # headers
 headers = {

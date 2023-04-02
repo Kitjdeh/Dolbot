@@ -27,6 +27,7 @@ setup(
             'appliance_ctrl = my_package.iot_udp:main',
             'load_map = my_package.load_map:main',
             'perception = my_package.create_logListId:main',
+            'schedule = my_package.schedule_TTS:main'
         ],
     },
 )

@@ -14,9 +14,13 @@ import socketio
 import os
 import threading
 import datetime
+import socketio
 
 from gtts import gTTS
 from playsound import playsound
+
+sio = socketio.Client()
+schedule_info={}
 
 # TTS
 def speak(text):
@@ -30,34 +34,88 @@ def speak(text):
 
      if os.path.exists(filename):
         os.remove(filename)
-        
+
+socket_data = {
+    "type": "robot", # !!!t를 type으로 변경했습니다!!!
+    "id": 2,  # user ID
+    "to": 2,  # robot ID
+    'message': "robot"
+}      
+
+@sio.event
+def connect():
+    print('서버에 연결되었습니다.')
+    sio.emit('init_robot', json.dumps(socket_data))
+
+@sio.event
+def disconnect():
+    print('서버와의 연결이 끊어졌습니다.')
+    
+@sio.event
+def schedule(data):
+    global schedule_info
+    print('일정 변경 및 삭제 메세지 수신: ', data)
+
+    t = time.time()
+    month = localtime(t).tm_mon
+    day = localtime(t).tm_mday
+
+    if month<10: 
+        month='0'+str(month)
+    if day<10:
+        day='0'+str(day)
+
+    today = str(localtime(t).tm_year)+"-"+str(month)+"-"+str(day)
+
+    res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+'2023-03-23')
+    # res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+today)
+    res = res.json()
+    schedule_info = res 
+
 class Schedule(Node):
    
     def __init__(self):
         super().__init__(node_name='Schedule')
         print("시작")
 
-        self.res = requests.get('http://3.36.67.119:8080/api/v1/schedule-info/1?localDate='+'2023-03-23')
+        t = time.time()
+        month = localtime(t).tm_mon
+        day = localtime(t).tm_mday
+
+        if month<10: 
+            month='0'+str(month)
+        if day<10:
+            day='0'+str(day)
+
+        today = str(localtime(t).tm_year)+"-"+str(month)+"-"+str(day)
+
+        self.res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+'2023-03-23')
+        # self.res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+today)
         self.res = self.res.json()
         print(self.res)
+
+        global schedule_info 
+        schedule_info = self.res
 
         thread = threading.Thread(target=self.tts)
         thread.daemon = True
         thread.start()
 
+
     def tts(self):
+        global schedule_info
 
         idx=0
         while True:
 
-            if idx==len(self.res):
+            if idx==len(schedule_info):
                 break
 
             now_time = time.time()
             now_time=localtime(now_time)
             print(now_time)
 
-            schedule_time = self.res[idx]['scheduleTime']
+            schedule_time = schedule_info[idx]['scheduleTime']
             print(schedule_time)
             schedule_time_sec = schedule_time // 1000
             schedule_datetime = datetime.datetime.fromtimestamp(schedule_time_sec)
@@ -65,8 +123,8 @@ class Schedule(Node):
 
             print(now_time.tm_hour, now_time.tm_min, hour, minutes)
             if now_time.tm_hour == hour and now_time.tm_min == minutes:
-                print(self.res[idx]['content'])
-                speak(self.res[idx]['content'])
+                print(schedule_info[idx]['content'])
+                speak(schedule_info[idx]['content'])
                 idx+=1
             
             time.sleep(10)
@@ -85,7 +143,8 @@ class Schedule(Node):
         #     time.sleep(20)
 
 def main(args=None):
-
+    global sio
+    sio.connect('https://j8a708.p.ssafy.io/socket')
     rclpy.init(args=args)
     schedule = Schedule()
     rclpy.spin(schedule)

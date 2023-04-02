@@ -19,7 +19,7 @@ import requests
 import json
 from time import localtime
 
-url='http://3.36.67.119:8080'
+url='https://j8a708.p.ssafy.io'
 
 appliance = {
     "living_room": {  # 거실 (조명/에어컨/TV)
@@ -169,7 +169,6 @@ class iot_udp(Node):
                 print("complete")
 
                 # 가전제어 완료 로그 POST 요청 
-
                 file_path=os.path.dirname(os.path.realpath(__file__))
                 f = open(file_path+"/data/loglistid.txt", 'r')
                 loglistid = f.read() 
@@ -387,7 +386,7 @@ def main(args=None):
     t = threading.Thread(target=speech_to_text.speechToText)
     t.start()
 
-    sio.connect('http://3.36.67.119:8081')
+    sio.connect('https://j8a708.p.ssafy.io/socket')
     rclpy.init(args=args)
     global iot
     iot = iot_udp()

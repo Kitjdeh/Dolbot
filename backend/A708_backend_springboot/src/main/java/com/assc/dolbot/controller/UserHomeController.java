@@ -25,9 +25,12 @@ public class UserHomeController {
 	@PostMapping
 	public ResponseEntity<String> userHomeAdd(@RequestBody UserHomeDto userHomeDto) {
 		try{
-			userHomeService.addUserHome(userHomeDto);
+			if(!userHomeService.addUserHome(userHomeDto)){
+				return new ResponseEntity<>(FAIL, HttpStatus.BAD_REQUEST);
+			}
 			return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
 		}catch(Exception e){
+			e.printStackTrace();
 			return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -35,24 +38,26 @@ public class UserHomeController {
 	//등록된 로봇들 정보 가져오기
 	@GetMapping("/robots/{user_id}")
 	public ResponseEntity<List<UserHomeDto>> userHomeListByUserId(@PathVariable("user_id") int userId){
-		List<UserHomeDto> list = new ArrayList<>();
+		List<UserHomeDto> userHomeDtoList = new ArrayList<>();
 		try{
-			list = userHomeService.findUserHomeListByUserId(userId);
-			return new ResponseEntity<List<UserHomeDto>>(list, HttpStatus.OK);
+			userHomeDtoList = userHomeService.findUserHomeListByUserId(userId);
+			return new ResponseEntity<List<UserHomeDto>>(userHomeDtoList, HttpStatus.OK);
 		}catch(Exception e){
-			return new ResponseEntity<List<UserHomeDto>>(list, HttpStatus.INTERNAL_SERVER_ERROR);
+			e.printStackTrace();
+			return new ResponseEntity<List<UserHomeDto>>(userHomeDtoList, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	//등록된 유저들 정보 가져오기 만들기
 	@GetMapping("/users/{robot_number}")
 	public ResponseEntity<List<UserHomeDto>> userHomeListByRobotNumber(@PathVariable("robot_number") int robotNumber){
-		List<UserHomeDto> list = new ArrayList<>();
+		List<UserHomeDto> userHomeDtoList = new ArrayList<>();
 		try{
-			list = userHomeService.findUserHomeListByRobotNumber(robotNumber);
-			return new ResponseEntity<List<UserHomeDto>>(list, HttpStatus.OK);
+			userHomeDtoList = userHomeService.findUserHomeListByRobotNumber(robotNumber);
+			return new ResponseEntity<List<UserHomeDto>>(userHomeDtoList, HttpStatus.OK);
 		}catch(Exception e){
-			return new ResponseEntity<List<UserHomeDto>>(list, HttpStatus.INTERNAL_SERVER_ERROR);
+			e.printStackTrace();
+			return new ResponseEntity<List<UserHomeDto>>(userHomeDtoList, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -64,6 +69,7 @@ public class UserHomeController {
 			userHomeService.modifyUserHome(userHomeId, userHomeDto);
 			return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
 		}catch(Exception e){
+			e.printStackTrace();
 			return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -75,6 +81,7 @@ public class UserHomeController {
 			userHomeService.removeUserHome(userHomeId);
 			return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
 		}catch(Exception e){
+			e.printStackTrace();
 			return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

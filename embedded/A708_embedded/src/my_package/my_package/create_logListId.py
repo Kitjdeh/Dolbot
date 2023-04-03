@@ -54,7 +54,7 @@ class IMGParser(Node):
 
         # file_path=os.path.dirname(os.path.realpath(__file__))
         file_path = os.getcwd() 
-        print(file_path)
+        # print(file_path)
         if (self.cnt == 100) :
             cv2.imwrite(file_path+"/img/img_"+str(now_time.tm_year)+str(now_time.tm_mon)+str(now_time.tm_mday)+".PNG", img_bgr)
 
@@ -99,15 +99,15 @@ class IMGParser(Node):
 
 socket_data = {
     "type": "robot",
-    "id": 10,  # robot ID
+    "id": 708001,  # robot ID
     "to": 1,  # user ID
 }
 
 def main(args=None):
 
-    sio.connect('http://3.36.67.119:8081')
+    sio.connect('https://j8a708.p.ssafy.io/socket')
     sio.emit('init_robot', json.dumps(socket_data))
-    sio.emit('targeting', json.dumps(socket_data))
+    # sio.emit('targeting', json.dumps(socket_data))
 
     rclpy.init(args=args)
     image_parser = IMGParser()

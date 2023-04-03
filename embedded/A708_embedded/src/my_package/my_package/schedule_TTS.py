@@ -21,6 +21,7 @@ from playsound import playsound
 
 sio = socketio.Client()
 schedule_info={}
+user_id=0
 
 # TTS
 def speak(text):
@@ -37,8 +38,8 @@ def speak(text):
 
 socket_data = {
     "type": "robot", # !!!t를 type으로 변경했습니다!!!
-    "id": 2,  # user ID
-    "to": 2,  # robot ID
+    "id": 708001,  # robot ID
+    "to": user_id,  # user ID
     'message': "robot"
 }      
 
@@ -54,8 +55,10 @@ def disconnect():
 @sio.event
 def schedule(data):
     global schedule_info
+    global user_id
     print('일정 변경 및 삭제 메세지 수신: ', data)
 
+    user_id = data["id"]
     t = time.time()
     month = localtime(t).tm_mon
     day = localtime(t).tm_mday
@@ -67,8 +70,8 @@ def schedule(data):
 
     today = str(localtime(t).tm_year)+"-"+str(month)+"-"+str(day)
 
-    res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+'2023-03-23')
-    # res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+today)
+    # res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+'2023-03-23')
+    res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+today)
     res = res.json()
     schedule_info = res 
 
@@ -89,8 +92,8 @@ class Schedule(Node):
 
         today = str(localtime(t).tm_year)+"-"+str(month)+"-"+str(day)
 
-        self.res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+'2023-03-23')
-        # self.res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+today)
+        # self.res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+'2023-03-23')
+        self.res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+today)
         self.res = self.res.json()
         print(self.res)
 
@@ -100,7 +103,6 @@ class Schedule(Node):
         thread = threading.Thread(target=self.tts)
         thread.daemon = True
         thread.start()
-
 
     def tts(self):
         global schedule_info
@@ -127,6 +129,11 @@ class Schedule(Node):
                 speak(schedule_info[idx]['content'])
                 idx+=1
             
+            if now_time.tm_hour > hour:
+                break
+
+            if now_time.tm_hour == hour and now_time.tm_min>minutes:
+                break
             time.sleep(10)
 
         # for r in self.res:
@@ -151,4 +158,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-

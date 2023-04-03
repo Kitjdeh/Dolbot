@@ -71,6 +71,10 @@ def answer(input_text):
           speak('네 어르신 말씀하세요.')
           # speak('안녕하세요. 어르신을 케어하는 로봇 돌봇입니다. 무엇을 도와드릴까요?')
           return
+
+     elif '돌쇠야' in input_text and "안녕" in input_text:
+          speak('네 어르신 안녕하세요')
+
      elif '어디' in input_text:
           speak('네 어르신 저 여기에 있어요.')
 
@@ -163,9 +167,6 @@ def answer(input_text):
                speak('방 이름과 가전기기를 함께 말해주세요.')
 
 
-            
-               
-
 class MicrophoneStream(object):
 
     def __init__(self, rate, chunk):
@@ -252,9 +253,6 @@ def listen_print_loop(responses):
             
             elif stt_flag==True:
                 answer(transcript)
-
-            else:
-                speak('다시 한 번 말씀해주세요.')
 
 
             if re.search(r"\b(종료)\b", transcript, re.I):

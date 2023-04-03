@@ -340,11 +340,12 @@ class iot_udp(Node):
 iot = ''
 
 sio = socketio.Client()
+user_id=0
 
 socket_data = {
     "type": "robot",
-    "id": 2,  # robot ID
-    "to": 2,  # user ID
+    "id": 708001,  # robot ID
+    "to": user_id,  # user ID
     "message": "로봇 테스트입니다. 띠디디디-",
 }
 
@@ -362,6 +363,9 @@ def disconnect():
 
 @sio.event
 def home_status(data):
+    global user_id
+    user_id=data['id']
+
     print('메시지 수신:', data)
     global socket_data
     socket_data["message"] = appliance
@@ -370,6 +374,9 @@ def home_status(data):
 
 @sio.event
 def appliance_status(data): 
+    global user_id
+    user_id=data['id']
+
     print('메시지 수신:', data)
     dict = json.loads(data)
     print(dict["type"] + "가 보낸 메세지")

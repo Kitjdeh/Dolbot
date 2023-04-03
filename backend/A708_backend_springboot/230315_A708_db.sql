@@ -6,7 +6,7 @@ USE dolbot;
 
 CREATE TABLE user_info (
   user_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  email VARCHAR(50) UNIQUE NOT NULL,
+  kakao_id VARCHAR(20) UNIQUE NOT NULL,
   main_home_id INT UNSIGNED NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -108,14 +108,14 @@ CREATE TABLE schedule_log (
   FOREIGN KEY (log_list_id) REFERENCES log_list(log_list_id)
 );
 
-INSERT INTO user_info (email, main_home_id)
-VALUES ("kjm@naver.com", 1),
-       ("kdw@naver.com", 2);
+INSERT INTO user_info (kakao_id, main_home_id)
+VALUES ("1111111111", 1),
+       ("2222222222", 2);
        
 INSERT INTO home (robot_number, location)
-VALUES (10, '서울'),
-       (20, '부산'),
-       (30, '제주도');
+VALUES (708001, '서울'),
+       (708002, '부산'),
+       (708003, '제주도');
 
 INSERT INTO user_home (user_id, home_id, nickname)
 VALUES (1, 1, '김원혁'),

@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.assc.dolbot.entity.UserInfo;
 
 public interface UserInfoRepository extends JpaRepository<UserInfo, Integer> {
-	UserInfo findByEmail(String email);
+	UserInfo findByKakaoId(String kakaoId);
 }

@@ -36,11 +36,11 @@ public class UserInfo {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int userId;
 
-	@Column(nullable = false, unique = true, length = 50)
-	private String email;
+	@Column(nullable = false, unique = true, length = 20)
+	private String kakaoId;
 
-	@Column(nullable = false )
-	private int main_home_id;
+	@Column(nullable = false)
+	private int mainHomeId;
 
 	@CreatedDate
 	@Column(updatable = false, nullable = false)
@@ -53,8 +53,8 @@ public class UserInfo {
 	public UserInfoDto toDto() {
 		UserInfoDto userInfoDto = UserInfoDto.builder()
 			.userId(this.userId)
-			.email(this.email)
-			.main_home_id(this.main_home_id)
+			.kakaoId(this.kakaoId)
+			.mainHomeId(this.mainHomeId)
 			.build();
 		return userInfoDto;
 	}

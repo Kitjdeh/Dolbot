@@ -40,7 +40,7 @@ public class Home {
 	@Column(nullable = false)
 	private int robotNumber;
 
-	@Column(nullable = false)
+	@Column(nullable = false, length = 50)
 	private String location;
 
 	@CreatedDate
@@ -48,5 +48,6 @@ public class Home {
 	private LocalDateTime createdAt;
 
 	@LastModifiedDate
+	@Column(nullable = false)
 	private LocalDateTime updatedAt;
 }

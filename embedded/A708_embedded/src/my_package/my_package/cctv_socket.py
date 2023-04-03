@@ -84,8 +84,14 @@ class cctv_cmd(Node):
             self.cmd_msg.angular.z = 0.0
             self.cmd_pub.publish(self.cmd_msg)
             while not(room_point[room_name][2]-1<=self.status_msg.twist.linear.z<=room_point[room_name][2]+1):
+                turn_angle = room_point[room_name][2]-self.status_msg.twist.linear.z
+                if turn_angle == 0:
+                    break
+                elif abs(turn_angle)>180 :
+                    self.cmd_msg.angular.z = 0.3 * turn_angle/abs(turn_angle)
+                else:
+                    self.cmd_msg.angular.z = -0.3 *turn_angle/abs(turn_angle)
                 self.cmd_msg.linear.x = 0.0
-                self.cmd_msg.angular.z = 0.3
                 self.cmd_pub.publish(self.cmd_msg)
             local_path_msg = Path()
             local_path_msg.header.frame_id = '/map'

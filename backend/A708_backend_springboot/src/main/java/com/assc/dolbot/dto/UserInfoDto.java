@@ -17,15 +17,15 @@ import lombok.ToString;
 @Builder
 public class UserInfoDto {
 	private int userId;
-	private String email;
-	private int main_home_id;
+	private String kakaoId;
+	private int mainHomeId;
 	private boolean isNew;
 
 	public UserInfo toEntity() {
 		UserInfo build = UserInfo.builder()
 			.userId(this.userId)
-			.email(this.email)
-			.main_home_id(this.main_home_id)
+			.kakaoId(this.kakaoId)
+			.mainHomeId(this.mainHomeId)
 			.build();
 		return build;
 	}

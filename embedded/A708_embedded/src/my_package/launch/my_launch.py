@@ -24,5 +24,10 @@ def generate_launch_description():
             package='my_package',
             node_executable='load_map',
             node_name='load_map'
+        ),
+        Node(
+            package='my_package',
+            node_executable='appliance_ctrl',
+            node_name='appliance_ctrl'
         )
     ])

@@ -9,56 +9,12 @@ import struct
 import binascii
 import socketio
 import json
+import os
 from nav_msgs.msg import Path
 from ssafy_msgs.msg import TurtlebotStatus
 from geometry_msgs.msg import Pose, PoseStamped, Twist
 
-appliance = {
-    "living_room": {  # 거실 (조명/에어컨/TV)
-        "light": {"status": "OFF", "pose": [0, 0]},
-        "air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "target": 23, "pose": [0, 0]},
-        # mode = cool, warm, dry
-        # speed = high, mid, low
-        "tv": {"status": "OFF", "pose": [-6.36, 16.23]},
-    },
-    "inner_room": {  # 안방 (조명/에어컨/공기청정기)
-        "light": {"status": "OFF", "pose": [0, 0]},
-        "air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "pose": [0, 0]},
-        "air_cleaner": {"status": "OFF", "mode": "high", "pose": [0, 0]},
-        # mode = high, mid, low
-    },
-    "library": {  # 서재 (조명/공기청정기)
-        "light": {"status": "OFF", "pose": [0, 0]},
-        "air_cleaner": {"status": "OFF", "pose": [0, 0]},
-    },
-    "small_room": {  # 작은방 (조명/에어컨/TV)
-        "light": {"status": "OFF", "pose": [0, 0]},
-        "air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "pose": [0, 0]},
-        "tv": {"status": "OFF", "pose": [0, 0]},
-    },
-    "toilet": {  # 화장실 (조명)
-        "light": {"status": "OFF", "pose": [0, 0]},
-    },
-    "entrance": {  # 현관 (조명)
-        "light": {"status": "OFF", "pose": [0, 0]},
-    },
-}
-
-toast_msg = {
-    "living_room": "거실",
-    "inner_room": "안방",
-    "library": "서재",
-    "small_room": "작은방",
-    "toilet": "화장실",
-    "entrance": "현관",
-    "tv": "TV가",
-    "light": "조명이",
-    "air_conditioner": "에어컨이",
-    "air_cleaner": "공기청정기가",
-    "ON": "켜졌습니다",
-    "OFF": "꺼졌습니다"
-}
-
+file_path = os.getcwd() + "/appliance.json"
 
 params_status = {
     (0xa, 0x25): "IDLE",
@@ -77,10 +33,20 @@ params_control_cmd = {
     "DISCONNECT": (0x00, 0x25)
 }
 
-# device_pose = {
-#     "tv": [-6.36, 16.23],
-#     "air": [-12.26, 5.51]
-# }
+toast_msg = {
+    "living_room": "거실",
+    "inner_room": "안방",
+    "library": "서재",
+    "small_room": "작은방",
+    "toilet": "화장실",
+    "entrance": "현관",
+    "tv": ["TV를","TV가"],
+    "light": ["조명을","조명이"],
+    "air_conditioner": ["에어컨을","에어컨이"],
+    "air_cleaner": ["공기청정기를","공기청정기가"],
+    "ON": ["켜는중입니다","켜졌습니다"],
+    "OFF": ["끄는중입니다","꺼졌습니다"]
+}
 
 
 class iot_udp(Node):
@@ -95,6 +61,7 @@ class iot_udp(Node):
         self.status_msg = TurtlebotStatus()
         self.cmd_msg = Twist()
         self.is_status = False
+        self.is_drive = False
 
         self.ip = '127.0.0.1'
         self.port = 7502
@@ -118,35 +85,83 @@ class iot_udp(Node):
 
         os.system('cls')
 
-    def device_control(self, room_name, device_name, status):
+    def device_control(self, cmd):
+        with open(file_path, 'r') as file:
+            appliance = json.load(file)
+        room_name = cmd["room"]
+        device_name = cmd["device"]
+        status = cmd["status"]
+        mode=""
+        speed = ""
+        if device_name == "air_conditioner":
+            mode = cmd["mode"]
+            speed= cmd["speed"]
+        elif device_name == "air_cleaner":
+            mode = cmd["mode"]
+
         if appliance[room_name][device_name]["status"] != status:
+            print("path planning....")
+            self.cmd_msg.linear.x = 0.0
+            self.cmd_msg.angular.z = 0.0
+            self.cmd_pub.publish(self.cmd_msg)
+            time.sleep(0.5)
+            start_pose = PoseStamped()
+            start_pose.pose.position.x = self.status_msg.twist.angular.x
+            start_pose.pose.position.y = self.status_msg.twist.angular.y
+            start_pose.pose.orientation.w = 1.0
             goal_pose = PoseStamped()
             goal_pose.pose.position.x = appliance[room_name][device_name]["pose"][0]
             goal_pose.pose.position.y = appliance[room_name][device_name]["pose"][1]
             goal_pose.pose.orientation.w = 1.0
             self.goal_pub.publish(goal_pose)
+            self.is_drive = True
+            global socket_data
+            socket_data["message"] = toast_msg[room_name]+toast_msg[device_name][0] + \
+                    toast_msg[status][0]
+            sio.emit('robot_message',json.dumps(socket_data))
             if self.is_status == True:
-                while not (goal_pose.pose.position.x-0.5 <= self.status_msg.twist.angular.x <= goal_pose.pose.position.x+0.5) or not (goal_pose.pose.position.y-0.5 <= self.status_msg.twist.angular.y <= goal_pose.pose.position.y+0.5):
-                    print(self.status_msg.twist.angular.x,
-                          self.status_msg.twist.angular.y)
+                while not (goal_pose.pose.position.x-0.1 <= self.status_msg.twist.angular.x <= goal_pose.pose.position.x+0.1) or not (goal_pose.pose.position.y-0.1 <= self.status_msg.twist.angular.y <= goal_pose.pose.position.y+0.1):
                     continue
                 self.cmd_msg.linear.x = 0.0
                 self.cmd_msg.angular.z = 0.0
                 self.cmd_pub.publish(self.cmd_msg)
+                time.sleep(0.5)
                 print("GOAL")
-                self.scan()
                 self.connect()
                 self.control()
                 self.disconnect()
                 appliance[room_name][device_name]["status"] = status
+                if device_name == "air_conditioner":
+                    appliance[room_name][device_name]["mode"] = mode
+                    appliance[room_name][device_name]["speed"] = speed
+                elif device_name == "air_cleaner":
+                    appliance[room_name][device_name]["mode"] = mode
                 socket_data["message"] = appliance
                 sio.emit('home_status', json.dumps(socket_data))
-                socket_data["message"] = toast_msg[room_name]+toast_msg[device_name] + \
-                    toast_msg[status]
-                sio.emit('toast', socket_data)
+                socket_data["message"] = toast_msg[room_name]+toast_msg[device_name][1] + \
+                    toast_msg[status][1]
+                sio.emit('toast', json.dumps(socket_data))
+                sio.emit('robot_status',json.dumps(socket_data))
+                self.is_drive = False
                 print("complete")
+            return_p = PoseStamped()
+            return_p.pose.position.x =100.0
+            return_p.pose.position.y =100.0
+            return_p.pose.orientation.w =1.0
+            self.goal_pub.publish(return_p)
+            self.is_drive = True
+            if self.is_status == True:
+                while not (start_pose.pose.position.x-0.1 <= self.status_msg.twist.angular.x <= start_pose.pose.position.x+0.1) or not (start_pose.pose.position.y-0.1 <= self.status_msg.twist.angular.y <= start_pose.pose.position.y+0.1):
+                    continue
+                self.cmd_msg.linear.x = 0.0
+                self.cmd_msg.angular.z = 0.0
+                self.cmd_pub.publish(self.cmd_msg)
+                time.sleep(0.5)
+                print("return")
             else:
                 print("connection error")
+            with open(file_path, 'w', encoding='utf-8') as file:
+                json.dump(appliance, file, indent="\t")
         else:
             print("already ", status)
 
@@ -233,40 +248,38 @@ class iot_udp(Node):
             print("device status:", self.recv_data[2])
 
     def connect(self):
-        # pass
-        '''
-        로직 7. iot connect
-        iot 네트워크 상태를 확인하고, CONNECTION_LOST 상태이면, RESET 명령을 보내고,
-        나머지 상태일 때는 TRY_TO_CONNECT 명령을 보내서 iot에 접속하세요.
-        '''
 
         if self.is_recv_data == True:
             if params_status[self.recv_data[1]] == "CONNECTION_LOST":
                 while (params_status[self.recv_data[1]] == "CONNECTION_LOST"):
+                    self.cmd_msg.linear.x = 0.0
+                    self.cmd_msg.angular.z = 1.0
+                    self.cmd_pub.publish(self.cmd_msg)
                     self.send_data(
                         self.recv_data[0], params_control_cmd["RESET"])
             while (params_status[self.recv_data[1]] != "CONNECTION"):
+                self.cmd_msg.linear.x = 0.0
+                self.cmd_msg.angular.z = 1.0
+                self.cmd_pub.publish(self.cmd_msg)
                 self.send_data(
                     self.recv_data[0], params_control_cmd["TRY_TO_CONNECT"])
         else:
             print("ERROR : not control area")
 
     def control(self):
-
-        pass
-        '''
-        로직 8. iot control
-        
-        iot 디바이스 상태를 확인하고, ON 상태이면 OFF 명령을 보내고, OFF 상태면 ON 명령을 보내서,
-        현재 상태를 토글시켜주세요.
-        '''
         if self.is_recv_data == True:
             if params_status[self.recv_data[2]] == "OFF":
                 while (params_status[self.recv_data[2]] == "OFF"):
+                    self.cmd_msg.linear.x = 0.0
+                    self.cmd_msg.angular.z = 1.0
+                    self.cmd_pub.publish(self.cmd_msg)
                     self.send_data(self.recv_data[0],
                                    params_control_cmd["SWITCH_ON"])
             elif params_status[self.recv_data[2]] == "ON":
                 while (params_status[self.recv_data[2]] == "ON"):
+                    self.cmd_msg.linear.x = 0.0
+                    self.cmd_msg.angular.z = 1.0
+                    self.cmd_pub.publish(self.cmd_msg)
                     self.send_data(self.recv_data[0],
                                    params_control_cmd["SWITCH_OFF"])
             else:
@@ -317,6 +330,8 @@ def disconnect():
 def home_status(data):
     print('메시지 수신:', data)
     global socket_data
+    with open(file_path, 'r') as file:
+        appliance = json.load(file)
     socket_data["message"] = appliance
     sio.emit('home_status', json.dumps(socket_data))
 
@@ -328,15 +343,12 @@ def appliance_status(data):  # !!!chat_message를 robot_message로 변경했습�
     print(dict["type"] + "가 보낸 메세지")
     print("userID="+str(dict["id"]))
     print("robotID="+str(dict["to"]))
-    # print(dict["type"]+"가 보낸 메세지, userID="+str(dict["id"])+", robotID="+str(dict["to"])+", message="+dict["message"])
     dict2 = dict["message"]
-    print("message : room=" + str(dict2["room"]) +
-          ", device="+dict2["device"]+", status="+dict2["status"])
-    iot.device_control(dict2["room"], dict2["device"], dict2["status"])
+    iot.device_control(dict2)
 
 
 def main(args=None):
-    sio.connect('http://3.36.67.119:8081')
+    sio.connect('https://j8a708.p.ssafy.io/socket')
     rclpy.init(args=args)
     global iot
     iot = iot_udp()

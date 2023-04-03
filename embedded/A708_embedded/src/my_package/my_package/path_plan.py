@@ -121,6 +121,26 @@ class a_star(Node):
             # 로직 6. goal_pose 메시지 수신하여 목표 위치 설정
             goal_x = msg.pose.position.x
             goal_y = msg.pose.position.y
+            if goal_y==100.0 and goal_x==100.0:
+                self.final_path.reverse()
+                print("돌아가기!")
+                self.global_path_msg = Path()
+                self.global_path_msg.header.frame_id = 'map'
+                if self.final_path != None:
+                    for grid_cell in self.final_path:
+                        tmp_pose = PoseStamped()
+                        waypoint_x, waypoint_y = self.grid_cell_to_pose(
+                            grid_cell)
+                        tmp_pose.pose.position.x = waypoint_x
+                        tmp_pose.pose.position.y = waypoint_y
+                        tmp_pose.pose.orientation.w = 1.0
+                        self.global_path_msg.poses.append(tmp_pose)
+
+                    print("메세지 생성 종료")
+                    if len(self.final_path) != 0:
+                        self.a_star_pub.publish(self.global_path_msg)
+                        print("메세지 전송 완료")
+                        return
             goal_cell = self.pose_to_grid_cell(goal_x, goal_y)
             print('가:', goal_cell)
             print('나:', self.is_map, self.is_odom)
@@ -145,14 +165,14 @@ class a_star(Node):
                     [[self.GRIDSIZE*self.GRIDSIZE for col in range(self.GRIDSIZE)] for row in range(self.GRIDSIZE)])
                 # 비용 맵을 최댓값으로 초기화
 
-                print('마:', self.grid[start_grid_cell[0]][start_grid_cell[1]])
-                print('바:', self.grid[self.goal[0]][self.goal[1]])
+                print('마:', self.grid[start_grid_cell[1]][start_grid_cell[0]])
+                print('바:', self.grid[self.goal[1]][self.goal[0]])
                 # 다익스트라 알고리즘을 완성하고 주석을 해제 시켜주세요.
                 # 시작지, 목적지가 탐색가능한 영역이고, 시작지와 목적지가 같지 않으면 경로탐색을 합니다.
                 if self.grid[start_grid_cell[1]][start_grid_cell[0]] == 0 and self.grid[self.goal[1]][self.goal[0]] == 0 and start_grid_cell != self.goal:
                     self.dijkstra([start_grid_cell[1], start_grid_cell[0]])
+                    print("다익스트라 종료!")
 
-                print("다익스트라 종료!")
                 self.global_path_msg = Path()
                 self.global_path_msg.header.frame_id = 'map'
                 if self.final_path != None:
@@ -179,9 +199,9 @@ class a_star(Node):
 
         while Q:
             current = Q.popleft()
-            print(current == self.goal)
-            print("현재 위치", current)
-            print("목표지점", self.goal)
+            # print(current == self.goal)
+            # print("현재 위치", current)
+            # print("목표지점", self.goal)
 
             if current == [self.goal[1], self.goal[0]]:
                 print("경로 탐색 완료 1 ")
@@ -190,9 +210,9 @@ class a_star(Node):
 
             for i in range(8):
                 next = [current[0] + self.dx[i], current[1] + self.dy[i]]
-                print("다음 노드", next)
+                # print("다음 노드", next)
                 if next[0] >= 0 and next[1] >= 0 and next[0] < self.GRIDSIZE and next[1] < self.GRIDSIZE:
-                    print(self.grid[next[0]][next[1]])
+                    # print(self.grid[next[0]][next[1]])
                     if self.grid[next[0]][next[1]] < 50:
                         if self.cost[next[0]][next[1]] > self.cost[current[0]][current[1]] + self.dCost[i]:
                             Q.append(next)
@@ -206,8 +226,8 @@ class a_star(Node):
             while node != start:
                 nextNode = self.path[node[0]][node[1]]
                 self.final_path.insert(0, [nextNode[1], nextNode[0]])
-                print(self.final_path[0])
-                print(self.grid[self.final_path[0][0]][self.final_path[0][1]])
+                # print(self.final_path[0])
+                # print(self.grid[self.final_path[0][0]][self.final_path[0][1]])
                 node = nextNode
             self.final_path.append([self.goal[0], self.goal[1]])
         else:

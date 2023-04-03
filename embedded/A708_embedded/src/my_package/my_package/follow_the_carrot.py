@@ -4,7 +4,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist, Point, Point32
 from ssafy_msgs.msg import TurtlebotStatus
 from squaternion import Quaternion
-from nav_msgs.msg import Odometry, Path
+from nav_msgs.msg import Odometry, Path, OccupancyGrid
 from math import pi, cos, sin, sqrt, atan2, radians
 import numpy as np
 
@@ -20,27 +20,45 @@ class followTheCarrot(Node):
             TurtlebotStatus, '/turtlebot_status', self.status_callback, 10)
         self.path_sub = self.create_subscription(
             Path, '/local_path', self.path_callback, 10)
+        self.map_sub = self.create_subscription(
+            OccupancyGrid, 'map', self.map_callback, 1)
 
         time_period = 0.05
         self.timer = self.create_timer(time_period, self.timer_callback)
 
+        self.is_map = False
         self.is_odom = False
         self.is_path = False
         self.is_status = False
+        self.is_grid_update = False
+        
         self.odom_msg = Odometry()
-
         self.path_msg = Path()
         self.cmd_msg = Twist()
+        self.map_msg = OccupancyGrid()
         self.robot_yaw = 0.0
 
         self.lfd = 0.1  # 로봇의 전방 주시 거리 (0.1 ~2.0으로 제한)
         self.min_lfd = 0.1
-        self.max_lfd = 2.0
+        self.max_lfd = 1.0
 
     def timer_callback(self):
 
         if self.is_status == True and self.is_path == True:
             if len(self.path_msg.poses) > 1:
+
+                if self.is_map == True: # 벽이 있는경우 후진하기 위함
+                    if self.is_grid_update == False:
+                        self.grid_update()
+                    x = self.status_msg.twist.angular.x
+                    y = self.status_msg.twist.angular.y
+                    now_cell = self.pose_to_grid_cell(x,y)
+                    if self.grid[now_cell[1]][now_cell[0]] > 75:
+                        self.cmd_msg.linear.x = -0.5
+                        self.cmd_msg.angular.z = 0.0
+                        self.cmd_pub.publish(self.cmd_msg)
+                        return
+                    
                 self.is_look_forward_point = False
 
                 robot_pose_x = self.status_msg.twist.angular.x
@@ -85,9 +103,8 @@ class followTheCarrot(Node):
                     theta = - \
                         atan2(local_forward_point[1], local_forward_point[0])
 
-                    self.cmd_msg.linear.x = 1.0
-                    self.cmd_msg.angular.z = theta*2
-
+                    self.cmd_msg.linear.x = 0.7
+                    self.cmd_msg.angular.z = theta*1.8
             else:
                 print("no found forward point")
                 self.cmd_msg.linear.x = 0.0
@@ -110,6 +127,22 @@ class followTheCarrot(Node):
         self.is_status = True
         self.status_msg = msg
         self.robot_yaw = radians(msg.twist.linear.z)
+    
+    def map_callback(self, msg):
+        self.is_map = True
+        self.map_msg = msg
+
+    def pose_to_grid_cell(self, x, y):
+        map_point_x = 0
+        map_point_y = 0
+        map_point_x = int((x+15.75) * 20)
+        map_point_y = int((y-0.25) * 20)
+        return [map_point_x, map_point_y]
+    
+    def grid_update(self):
+        self.is_grid_update = True
+        map_to_grid = np.array(self.map_msg.data)
+        self.grid = np.reshape(map_to_grid, (350, 350))
 
 
 def main(args=None):

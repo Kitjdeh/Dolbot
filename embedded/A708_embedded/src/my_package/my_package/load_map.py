@@ -84,6 +84,10 @@ class loadMap(Node):
                     for box_x in range(-5, 6):
                         for box_y in range(-5, 6):
                             if 0 < x+box_x < 350 and 0 < y+box_y < 350 and grid[x+box_x][y+box_y] < 80:
+                                grid[x+box_x][y+box_y] = 70
+                    for box_x in range(-2, 3):
+                        for box_y in range(-2, 3):
+                            if 0 < x+box_x < 350 and 0 < y+box_y < 350 and grid[x+box_x][y+box_y] < 80:
                                 grid[x+box_x][y+box_y] = 127
 
         np_map_data = grid.reshape(1, 350*350)

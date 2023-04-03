@@ -1,7 +1,6 @@
-
 import rclpy
 from rclpy.node import Node
-import time
+from time import time
 import os
 import socket
 import threading
@@ -11,10 +10,10 @@ import socketio
 import json
 import os
 from nav_msgs.msg import Path
-from ssafy_msgs.msg import TurtlebotStatus
+from ssafy_msgs.msg import TurtlebotStatus, EnviromentStatus
 from geometry_msgs.msg import Pose, PoseStamped, Twist
 
-file_path = os.getcwd() + "/appliance.json"
+file_path = os.getcwd()
 
 params_status = {
     (0xa, 0x25): "IDLE",
@@ -48,6 +47,26 @@ toast_msg = {
     "OFF": ["끄는중입니다","꺼졌습니다"]
 }
 
+appliance_mapping={
+    "light":1,
+    "air_conditioner":2,
+    "tv": 3,
+    "air_cleaner": 4
+}
+
+room_mapping={
+    "living_room": 1,
+    "inner_room": 2, 
+    "library": 3,
+    "small_room": 4, 
+    "toilet": 5,
+    "entrance": 6,
+}
+
+# device_pose = {
+#     "tv": [-6.36, 16.23],
+#     "air": [-12.26, 5.51]
+# }
 
 class iot_udp(Node):
 
@@ -58,6 +77,7 @@ class iot_udp(Node):
         self.status_sub = self.create_subscription(
             TurtlebotStatus, '/turtlebot_status', self.status_callback, 10)
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+
         self.status_msg = TurtlebotStatus()
         self.cmd_msg = Twist()
         self.is_status = False
@@ -86,7 +106,7 @@ class iot_udp(Node):
         os.system('cls')
 
     def device_control(self, cmd):
-        with open(file_path, 'r') as file:
+        with open(file_path+ "/appliance.json", 'r') as file:
             appliance = json.load(file)
         room_name = cmd["room"]
         device_name = cmd["device"]
@@ -119,9 +139,11 @@ class iot_udp(Node):
             socket_data["message"] = toast_msg[room_name]+toast_msg[device_name][0] + \
                     toast_msg[status][0]
             sio.emit('robot_message',json.dumps(socket_data))
+
             if self.is_status == True:
                 while not (goal_pose.pose.position.x-0.1 <= self.status_msg.twist.angular.x <= goal_pose.pose.position.x+0.1) or not (goal_pose.pose.position.y-0.1 <= self.status_msg.twist.angular.y <= goal_pose.pose.position.y+0.1):
                     continue
+
                 self.cmd_msg.linear.x = 0.0
                 self.cmd_msg.angular.z = 0.0
                 self.cmd_pub.publish(self.cmd_msg)
@@ -130,12 +152,14 @@ class iot_udp(Node):
                 self.connect()
                 self.control()
                 self.disconnect()
+
                 appliance[room_name][device_name]["status"] = status
                 if device_name == "air_conditioner":
                     appliance[room_name][device_name]["mode"] = mode
                     appliance[room_name][device_name]["speed"] = speed
                 elif device_name == "air_cleaner":
                     appliance[room_name][device_name]["mode"] = mode
+
                 socket_data["message"] = appliance
                 sio.emit('home_status', json.dumps(socket_data))
                 socket_data["message"] = toast_msg[room_name]+toast_msg[device_name][1] + \
@@ -144,13 +168,36 @@ class iot_udp(Node):
                 sio.emit('robot_status',json.dumps(socket_data))
                 self.is_drive = False
                 print("complete")
-            return_p = PoseStamped()
-            return_p.pose.position.x =100.0
-            return_p.pose.position.y =100.0
-            return_p.pose.orientation.w =1.0
-            self.goal_pub.publish(return_p)
-            self.is_drive = True
-            if self.is_status == True:
+
+                # 가전제어 완료 로그 POST 요청 
+                f = open(file_path+"/data/loglistid.txt", 'r')
+                loglistid = f.read() 
+                f.close()
+
+                now_time = time()
+                now_time=localtime(now_time)
+                body = {
+                    "applianceId": appliance_mapping[device_name],  # 가전기기마다 번호 매핑
+                    "logListId": loglistid,  # 최초 사진 찍을 때 loglistid 생성 => 받아와서 값 넣어주기 
+                    "logTime": str(now_time.tm_hour)+":"+str(now_time.tm_min)+":"+str(now_time.tm_sec),
+                    "on": True if status=='ON' else False,
+                    "roomId": room_mapping[room_name]  # 방마다 번호 매핑
+                }
+                res = requests.post(
+                    url+'/api/v1/log/log/appliance-log',
+                    headers={'Content-Type': 'application/json', 'charset': 'UTF-8', 'Accept': '*/*'},
+                    data=json.dumps(body)
+                )
+                print(loglistid)
+                print(res)
+
+                return_p = PoseStamped()
+                return_p.pose.position.x =100.0
+                return_p.pose.position.y =100.0
+                return_p.pose.orientation.w =1.0
+                self.goal_pub.publish(return_p)
+                self.is_drive = True
+            
                 while not (start_pose.pose.position.x-0.1 <= self.status_msg.twist.angular.x <= start_pose.pose.position.x+0.1) or not (start_pose.pose.position.y-0.1 <= self.status_msg.twist.angular.y <= start_pose.pose.position.y+0.1):
                     continue
                 self.cmd_msg.linear.x = 0.0
@@ -158,9 +205,10 @@ class iot_udp(Node):
                 self.cmd_pub.publish(self.cmd_msg)
                 time.sleep(0.5)
                 print("return")
+
             else:
                 print("connection error")
-            with open(file_path, 'w', encoding='utf-8') as file:
+            with open(file_path+ "/appliance.json", 'w', encoding='utf-8') as file:
                 json.dump(appliance, file, indent="\t")
         else:
             print("already ", status)
@@ -306,11 +354,12 @@ class iot_udp(Node):
 iot = ''
 
 sio = socketio.Client()
+user_id=0
 
 socket_data = {
-    "type": "robot",  # !!!t를 type으로 변경했습니다!!!
-    "id": 1,  # robot ID
-    "to": 1,  # user ID
+    "type": "robot",
+    "id": 708001,  # robot ID
+    "to": user_id,  # user ID
     "message": "로봇 테스트입니다. 띠디디디-",
 }
 
@@ -328,26 +377,37 @@ def disconnect():
 
 @sio.event
 def home_status(data):
+    global user_id
+    user_id=data['id']
+
     print('메시지 수신:', data)
     global socket_data
-    with open(file_path, 'r') as file:
+    with open(file_path+ "/appliance.json", 'r') as file:
         appliance = json.load(file)
     socket_data["message"] = appliance
     sio.emit('home_status', json.dumps(socket_data))
 
 
 @sio.event
-def appliance_status(data):  # !!!chat_message를 robot_message로 변경했습니다!!!
+def appliance_status(data): 
+    global user_id
+    user_id=data['id']
+
     print('메시지 수신:', data)
     dict = json.loads(data)
     print(dict["type"] + "가 보낸 메세지")
     print("userID="+str(dict["id"]))
     print("robotID="+str(dict["to"]))
+    
     dict2 = dict["message"]
     iot.device_control(dict2)
 
-
 def main(args=None):
+
+    # STT Thread (관련 파일은 import 해서 사용)
+    t = threading.Thread(target=speech_to_text.speechToText)
+    t.start()
+
     sio.connect('https://j8a708.p.ssafy.io/socket')
     rclpy.init(args=args)
     global iot
@@ -355,7 +415,6 @@ def main(args=None):
     rclpy.spin(iot)
     iot.destroy_node()
     rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()

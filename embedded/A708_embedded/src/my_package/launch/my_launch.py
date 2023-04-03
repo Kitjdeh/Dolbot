@@ -30,4 +30,10 @@ def generate_launch_description():
             node_executable='appliance_ctrl',
             node_name='appliance_ctrl'
         )
+
+        # Node(
+        #     package='my_package',
+        #     node_executable='perception',
+        #     node_name='create_logListId'
+        # ),
     ])

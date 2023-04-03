@@ -114,5 +114,17 @@ def chat_message(sid, data):
         else:
             sio.emit('chat_message', data, to=robots[str(dict['to'])])
 
+target={}
+@sio.event
+def targeting(sid,data):
+    dict = json.loads(data)
+    robotSid = robots[str(dict['id'])]
+    userSid = users[str(dict['to'])] 
+    target[robotSid] = userSid 
+
+@sio.event
+def video(sid,data): 
+    sio.emit('video',data, to=target[str(sid)])
+
 if __name__ == '__main__':
     eventlet.wsgi.server(eventlet.listen(('', 8081)), app)

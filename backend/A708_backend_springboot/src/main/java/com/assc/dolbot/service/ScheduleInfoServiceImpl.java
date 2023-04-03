@@ -1,8 +1,10 @@
 package com.assc.dolbot.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -21,19 +23,14 @@ public class ScheduleInfoServiceImpl implements ScheduleInfoService{
 
 	@Override
 	public void addScheduleInfo(ScheduleInfoDto scheduleInfoDto) throws Exception {
-		Date scheduleTime = scheduleInfoDto.getScheduleTime();
+		ZonedDateTime scheduleTime = scheduleInfoDto.getScheduleTime().toInstant().atZone(ZoneId.of("Asia/Seoul"));
 		LocalDate startDate = scheduleInfoDto.getStartDate();
 		LocalDate endDate = scheduleInfoDto.getEndDate();
 
 		// startDate부터 endDate까지 반복
 		for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(scheduleTime);
-			cal.set(Calendar.YEAR, date.getYear());
-			cal.set(Calendar.MONTH, date.getMonthValue()-1);
-			cal.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
-			scheduleTime = cal.getTime();
-			scheduleInfoDto.setScheduleTime(scheduleTime);
+			ZonedDateTime dateTime = LocalDateTime.of(date, scheduleTime.toLocalTime()).atZone(ZoneId.of("Asia/Seoul"));
+			scheduleInfoDto.setScheduleTime(Date.from(dateTime.toInstant()));
 			scheduleInfoRepository.save(scheduleInfoDto.toEntity());
 		}
 	}
@@ -48,7 +45,6 @@ public class ScheduleInfoServiceImpl implements ScheduleInfoService{
 		return scheduleInfoDtoList;
 	}
 
-	// 모든 entity 추가후 save 한번으로 업데이트 가능한지 확인 필요!!
 	@Override
 	public void modifyScheduleInfo(int scheduleInfoId, ScheduleInfoDto scheduleInfoDto) throws Exception {
 		scheduleInfoDto.setScheduleId(scheduleInfoId);

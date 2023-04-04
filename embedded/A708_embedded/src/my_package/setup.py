@@ -29,6 +29,7 @@ setup(
             'perception = my_package.create_logListId:main',
             'schedule = my_package.schedule_TTS:main',
             'weather_pub = my_package.weather_pub:main',
+            'cctv = my_package.cctv_socket:main',
         ],
     },
 )

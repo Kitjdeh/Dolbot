@@ -10,8 +10,8 @@
 		"air_conditioner": {
 			"status": "ON",
 			"target": 18,
-			"mode": "warm",
-			"speed": "high",
+			"mode": "cool",
+			"speed": "mid",
 			"pose": [
 				-2.733,
 				4.525
@@ -30,7 +30,7 @@
 			"status": "OFF"
 		},
 		"air_conditioner": {
-			"status": "ON",
+			"status": "OFF",
 			"mode": "warm",
 			"speed": "high",
 			"pose": [
@@ -40,7 +40,7 @@
 			"target": 18
 		},
 		"air_cleaner": {
-			"status": "ON",
+			"status": "OFF",
 			"mode": "high",
 			"pose": [
 				-11.981,

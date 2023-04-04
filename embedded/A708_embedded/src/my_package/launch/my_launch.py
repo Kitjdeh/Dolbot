@@ -39,4 +39,9 @@ def generate_launch_description():
             node_executable='schedule',
             node_name='schedule'
         ),
+        Node(
+            package='my_package',
+            node_executable='weather_pub',
+            node_name='weather_pub'
+        ),
     ])

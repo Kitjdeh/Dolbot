@@ -1,17 +1,17 @@
 {
 	"living_room": {
 		"light": {
-			"status": "ON",
+			"status": "OFF",
 			"pose": [
 				-6.233,
 				14.411
 			]
 		},
 		"air_conditioner": {
-			"status": "OFF",
+			"status": "ON",
 			"target": 18,
-			"mode": "cool",
-			"speed": "mid",
+			"mode": "warm",
+			"speed": "high",
 			"pose": [
 				-2.733,
 				4.525
@@ -31,8 +31,8 @@
 		},
 		"air_conditioner": {
 			"status": "ON",
-			"mode": "cool",
-			"speed": "mid",
+			"mode": "warm",
+			"speed": "high",
 			"pose": [
 				-10.293,
 				4.805
@@ -41,7 +41,7 @@
 		},
 		"air_cleaner": {
 			"status": "ON",
-			"mode": "mid",
+			"mode": "high",
 			"pose": [
 				-11.981,
 				5.979
@@ -53,8 +53,8 @@
 			"status": "OFF"
 		},
 		"air_cleaner": {
-			"status": "OFF",
-			"mode": "mid",
+			"status": "ON",
+			"mode": "low",
 			"pose": [
 				-3.702,
 				12.064
@@ -66,8 +66,8 @@
 			"status": "OFF"
 		},
 		"air_conditioner": {
-			"status": "OFF",
-			"mode": "cool",
+			"status": "ON",
+			"mode": "warm",
 			"speed": "mid",
 			"pose": [
 				-6.127,

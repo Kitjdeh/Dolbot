@@ -50,7 +50,7 @@ class IMGParser(Node):
         video={
             "data" : msg.data.tolist()
         }
-        sio.emit('video', json.dumps(video))        
+        # sio.emit('video', json.dumps(video))        
 
         # file_path=os.path.dirname(os.path.realpath(__file__))
         file_path = os.getcwd() 
@@ -73,19 +73,22 @@ class IMGParser(Node):
 
             logListDto = {
                 "logDate": str(now_time.tm_year)+"-"+mon+"-"+day,
-                "robotId": 10,
+                "robotId": 708001,
                 "picture" : str(picture)
             }
+            print(logListDto)
 
             data = json.dumps(logListDto)
-            response = requests.post(url=url,data= data,headers=headers)
+            response = requests.post(url=url,data=data,headers=headers)
 
             print("response: ", response)
-            print(response.json())
-            print("logListId: ", response.json()['logListId'])
+
+            temp = response.json()
+            print(temp)
+            print("logListId: ", temp['logListId'])
             
             global logListId
-            logListId = response.json()['logListId']
+            logListId = temp['logListId']
 
             f = open(file_path+"/data/loglistid.txt", 'w')
             f.write(str(logListId))
@@ -100,14 +103,14 @@ class IMGParser(Node):
 socket_data = {
     "type": "robot",
     "id": 708001,  # robot ID
-    "to": 1,  # user ID
+    "to": 2,  # user ID
 }
 
 def main(args=None):
 
     sio.connect('https://j8a708.p.ssafy.io/socket')
     sio.emit('init_robot', json.dumps(socket_data))
-    # sio.emit('targeting', json.dumps(socket_data))
+    sio.emit('targeting', json.dumps(socket_data))
 
     rclpy.init(args=args)
     image_parser = IMGParser()

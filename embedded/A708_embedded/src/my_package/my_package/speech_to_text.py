@@ -23,6 +23,9 @@ CHUNK = int(RATE / 10)  # 100ms
 
 stt_flag=False
 
+mode = ['cool', 'mid']
+cmd = {'room': 'living_room', 'device': 'tv', 'status': 'OFF','mode': '','speed':'mid','target':18}
+
 # STT
 def speechToText():
     language_code = "ko-KR"  # a BCP-47 language tag
@@ -65,6 +68,7 @@ def speak(text):
 
 # 대답
 def answer(input_text):
+     global cmd
      answer_text=''
 
      if '돌쇠야' == input_text:
@@ -95,7 +99,7 @@ def answer(input_text):
                elif '에어컨' in input_text:
                     appliance='air_conditioner'
                     appliance_text='에어컨'
-               elif 'TV' in input_text:
+               elif 'TV' in input_text or 'tv' in input_text:
                     appliance='tv'
                     appliance_text='티비'
 
@@ -131,7 +135,7 @@ def answer(input_text):
                elif '에어컨' in input_text:
                     appliance='air_conditioner'
                     appliance_text='에어컨'
-               elif 'TV' in input_text:
+               elif 'TV' in input_text or 'tv' in input_text:
                     appliance='tv'
                     appliance_text='티비'
      
@@ -161,11 +165,19 @@ def answer(input_text):
                speak(speak_text)
                print(room, appliance, status)
                
-               iot_udp.iot.device_control(room, appliance, status)
+               cmd['room'] = room
+               cmd['device'] = appliance
+               cmd['status'] = status
+
+               if appliance=='air_conditioner':
+                    cmd['mode'] = mode[0]
+               elif appliance == 'air_cleaner':
+                    cmd['mode'] = mode[1]
+
+               iot_udp.iot.device_control(cmd)
                
           else:
                speak('방 이름과 가전기기를 함께 말해주세요.')
-
 
 class MicrophoneStream(object):
 

@@ -125,8 +125,10 @@ class Schedule(Node):
 
             print(now_time.tm_hour, now_time.tm_min, hour, minutes)
             if now_time.tm_hour == hour and now_time.tm_min == minutes:
+                # on_speak=True, on_control, on_return, on_cctv => False 
                 print(schedule_info[idx]['content'])
                 speak(schedule_info[idx]['content'])
+                # on_speak=False
                 idx+=1
             
             if now_time.tm_hour > hour:

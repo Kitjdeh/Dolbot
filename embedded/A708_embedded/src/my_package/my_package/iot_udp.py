@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from time import time
+import time
 import os
 import socket
 import threading
@@ -12,6 +12,46 @@ import os
 from nav_msgs.msg import Path
 from ssafy_msgs.msg import TurtlebotStatus, EnviromentStatus
 from geometry_msgs.msg import Pose, PoseStamped, Twist
+
+from . import speech_to_text
+import threading
+
+import requests
+import json
+from time import localtime
+
+url='https://j8a708.p.ssafy.io'
+
+appliance = {
+    "living_room": {  # 거실 (조명/에어컨/TV)
+        "light": {"status": "OFF", "pose": [0, 0]},
+        "air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "target": 23, "pose": [0, 0]},
+        # mode = cool, warm, dry
+        # speed = high, mid, low
+        "tv": {"status": "OFF", "pose": [-6.36, 15.33]},
+    },
+    "inner_room": {  # 안방 (조명/에어컨/공기청정기)
+        "light": {"status": "OFF", "pose": [0, 0]},
+        "air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "pose": [0, 0]},
+        "air_cleaner": {"status": "OFF", "mode": "high", "pose": [0, 0]},
+        # mode = high, mid, low
+    },
+    "library": {  # 서재 (조명/공기청정기)
+        "light": {"status": "OFF", "pose": [0, 0]},
+        "air_cleaner": {"status": "OFF", "pose": [0, 0]},
+    },
+    "small_room": {  # 작은방 (조명/에어컨/TV)
+        "light": {"status": "OFF", "pose": [0, 0]},
+        "air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "pose": [0, 0]},
+        "tv": {"status": "OFF", "pose": [0, 0]},
+    },
+    "toilet": {  # 화장실 (조명)
+        "light": {"status": "OFF", "pose": [0, 0]},
+    },
+    "entrance": {  # 현관 (조명)
+        "light": {"status": "OFF", "pose": [0, 0]},
+    },
+}
 
 file_path = os.getcwd()
 
@@ -113,10 +153,10 @@ class iot_udp(Node):
         status = cmd["status"]
         mode=""
         speed = ""
-        if device_name == "air_conditioner":
+        if device_name == "air_conditioner" and status == "ON":
             mode = cmd["mode"]
             speed= cmd["speed"]
-        elif device_name == "air_cleaner":
+        elif device_name == "air_cleaner" and status=="ON":
             mode = cmd["mode"]
 
         if appliance[room_name][device_name]["status"] != status:
@@ -154,10 +194,10 @@ class iot_udp(Node):
                 self.disconnect()
 
                 appliance[room_name][device_name]["status"] = status
-                if device_name == "air_conditioner":
+                if device_name == "air_conditioner" and status == "ON":
                     appliance[room_name][device_name]["mode"] = mode
                     appliance[room_name][device_name]["speed"] = speed
-                elif device_name == "air_cleaner":
+                elif device_name == "air_cleaner" and status == "ON":
                     appliance[room_name][device_name]["mode"] = mode
 
                 socket_data["message"] = appliance
@@ -165,7 +205,7 @@ class iot_udp(Node):
                 socket_data["message"] = toast_msg[room_name]+toast_msg[device_name][1] + \
                     toast_msg[status][1]
                 sio.emit('toast', json.dumps(socket_data))
-                sio.emit('robot_status',json.dumps(socket_data))
+                sio.emit('robot_message',json.dumps(socket_data))
                 self.is_drive = False
                 print("complete")
 
@@ -174,7 +214,7 @@ class iot_udp(Node):
                 loglistid = f.read() 
                 f.close()
 
-                now_time = time()
+                now_time = time.time()
                 now_time=localtime(now_time)
                 body = {
                     "applianceId": appliance_mapping[device_name],  # 가전기기마다 번호 매핑
@@ -208,6 +248,7 @@ class iot_udp(Node):
 
             else:
                 print("connection error")
+
             with open(file_path+ "/appliance.json", 'w', encoding='utf-8') as file:
                 json.dump(appliance, file, indent="\t")
         else:
@@ -376,25 +417,31 @@ def disconnect():
 
 
 @sio.event
-def home_status(data):
+def robot_message(data):
+    origin = json.loads(data)
     global user_id
-    user_id=data['id']
+    user_id=origin['id']
 
     print('메시지 수신:', data)
     global socket_data
-    with open(file_path+ "/appliance.json", 'r') as file:
-        appliance = json.load(file)
-    socket_data["message"] = appliance
-    sio.emit('home_status', json.dumps(socket_data))
+    socket_data['to']=user_id
 
+    if origin["message"]=="True":
+        with open(file_path+ "/appliance.json", 'r') as file:
+            appliance = json.load(file)
+        socket_data["message"] = appliance
+        sio.emit('home_status', json.dumps(socket_data))
 
 @sio.event
 def appliance_status(data): 
-    global user_id
-    user_id=data['id']
-
-    print('메시지 수신:', data)
     dict = json.loads(data)
+    global user_id
+    user_id=dict['id']
+
+    print('메시지 수신:', dict)
+    global socket_data
+    socket_data['to']=user_id
+
     print(dict["type"] + "가 보낸 메세지")
     print("userID="+str(dict["id"]))
     print("robotID="+str(dict["to"]))

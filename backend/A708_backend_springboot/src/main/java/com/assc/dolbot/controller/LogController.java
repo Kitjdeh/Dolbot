@@ -70,7 +70,7 @@ public class LogController {
         }
 
     }
-//
+    //
     // 날짜에 맞는 로그리스트 불러오기
     @GetMapping("/logs/{home_id}")
     @ApiOperation(value = "날짜에 맞는 로그리스트를 불러옴", notes = "/api/v1/log/logs/{home_id}?localDate=yyyy-MM-dd)")
@@ -79,6 +79,10 @@ public class LogController {
         LogListDto logList = new LogListDto();
         try{
             logList = logService.findLogList(homeId, localDate);
+            if(logList == null) {
+                logList = new LogListDto();
+                return new ResponseEntity<LogListDto>(logList, HttpStatus.NOT_FOUND);
+            }
             return new ResponseEntity<LogListDto>(logList, HttpStatus.OK);
         }catch(Exception e){
             e.printStackTrace();

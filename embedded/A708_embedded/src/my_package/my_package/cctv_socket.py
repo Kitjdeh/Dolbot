@@ -30,10 +30,11 @@ act_msg = {
     "entrance": ["현관으로", "현관에"],
 }
 
+user_id=0
 socket_data = {
     "type": "robot",  # !!!t를 type으로 변경했습니다!!!
-    "id": 1,  # robot ID
-    "to": 1,  # user ID
+    "id": 708001,  # robot ID
+    "to": user_id,  # user ID
     "message": "로봇 테스트입니다. 띠디디디-",
 }
 
@@ -118,9 +119,16 @@ def connect():
 def disconnect():
     print('서버와의 연결이 끊어졌습니다.')
 
+@sio.event
+def robot_message(data):  # 최초 앱 접속 및 렌더링시 날씨 요청
+    global socket_data
+    global user_id
+    origin = json.loads(data)
+    user_id = origin["id"]
+    socket_data["to"]=user_id
 
 @sio.event
-def appliance_status(data):
+def cctv(data):
     origin = json.loads(data)
     msg = origin["message"]
     cctv.cctv_control(msg)

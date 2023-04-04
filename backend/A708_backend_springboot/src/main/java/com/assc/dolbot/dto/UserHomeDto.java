@@ -22,6 +22,7 @@ public class UserHomeDto {
 	private String nickname;
 	private boolean isAlarm;
 	private int robotNumber;
+	private int status;
 
 	public UserHome toEntity(){
 		UserHome build = UserHome.builder()

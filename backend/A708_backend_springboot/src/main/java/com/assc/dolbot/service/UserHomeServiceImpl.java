@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import com.assc.dolbot.dto.UserHomeDto;
 import com.assc.dolbot.entity.Home;
 import com.assc.dolbot.entity.UserHome;
+import com.assc.dolbot.entity.UserInfo;
 import com.assc.dolbot.repository.HomeRepository;
 import com.assc.dolbot.repository.UserHomeRepository;
+import com.assc.dolbot.repository.UserInfoRepository;
 
 @Service
 public class UserHomeServiceImpl implements UserHomeService{
@@ -20,15 +22,31 @@ public class UserHomeServiceImpl implements UserHomeService{
 	@Autowired
 	private HomeRepository homeRepository;
 
+	@Autowired
+	private UserInfoRepository userInfoRepository;
+
 	@Override
-	public boolean addUserHome(UserHomeDto userHomeDto) throws Exception {
+	public UserHomeDto addUserHome(UserHomeDto userHomeDto) throws Exception {
 		Home home = homeRepository.findByRobotNumber(userHomeDto.getRobotNumber());
 		if(home == null){
-			return false;
+			userHomeDto.setStatus(1);
+		}else {
+			UserHome userHome = userHomeRepository.findByUserIdAndHomeId(userHomeDto.getUserId(), home.getHomeId());
+
+			if(userHome != null){
+				userHomeDto.setStatus(2);
+			}else {
+				if(userHomeRepository.findByUserId(userHomeDto.getUserId()).size()==0){
+					UserInfo userInfo = userInfoRepository.findById(userHomeDto.getUserId()).get();
+					userInfo.setMainHomeId(home.getHomeId());
+					userInfoRepository.save(userInfo);
+				}
+				userHomeDto.setHomeId(home.getHomeId());
+				userHomeDto = userHomeRepository.save(userHomeDto.toEntity()).toDto();
+			}
 		}
-		userHomeDto.setHomeId(home.getHomeId());
-		userHomeRepository.save(userHomeDto.toEntity());
-		return true;
+
+		return userHomeDto;
 	}
 
 	@Override

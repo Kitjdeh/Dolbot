@@ -87,6 +87,9 @@ public class LogServiceImpl implements LogService{
 
     @Override
     public LogListDto findLogList(int homeId, LocalDate localDate) throws Exception {
+        if(0 == logListRepository.countLogListByHomeIdAndLogDate(homeId,Date.valueOf(localDate))){
+            return null;
+        }
         LogList logList = logListRepository.findByHomeIdAndLogDate(homeId,Date.valueOf(localDate));
         List<LogDto> logDtoList = new ArrayList<>();
         System.out.println(logList);

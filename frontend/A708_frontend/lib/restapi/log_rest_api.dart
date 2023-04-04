@@ -2,20 +2,18 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-Future<Log> getLog() async {
-  final response = await http.get(Uri.parse(
-      'http://j8a708.p.ssafy.io:8080/api/v1/log/logs/1?localDate=2023-03-30'));
+Future<Log> getLog(date) async {
+  final response = await http.get(
+      Uri.parse('https://j8a708.p.ssafy.io/api/v1/log/logs/1?localDate=$date'));
 
   if (response.statusCode == 200) {
-
     // Log dataList = jsonDecode(utf8.decode(response.bodyBytes));
     // print(dataList);
     // var Logs = dataList;
     final decodedBody = utf8.decode(response.bodyBytes);
     return Log.fromJson(jsonDecode(decodedBody));
-
   } else {
-    throw Exception('Failed to load 로오오옹오오오오오그');
+    throw Exception('로그가 없습니다.');
   }
 }
 

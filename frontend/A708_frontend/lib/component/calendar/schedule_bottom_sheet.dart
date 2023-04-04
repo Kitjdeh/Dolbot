@@ -139,22 +139,6 @@ class _SchedulBottomSheetState extends State<SchedulBottomSheet> {
                             ),
                           ),
                         ),
-                        // _Time(
-                        //   onStartSaved: (String? val) {
-                        //     startTime = DateTime.parse(val!);
-                        //   },
-                        //   onEndSaved: (String? val) {
-                        //     endTime = DateTime.parse(val!);
-                        //     // endTime = int.parse(val!);
-                        //   },
-                        //   startInitialValue: DateTime(
-                        //     DateTime.now().year,
-                        //     DateTime.now().month,
-                        //     DateTime.now().day,
-                        //   ),
-                        //   endInitialValue: DateTime.now(),
-                        //   // endInitialValue: endTime?.toString() ?? '',
-                        // ),
                       ),
                       SizedBox(height: 16.0),
                       _content(
@@ -166,7 +150,6 @@ class _SchedulBottomSheetState extends State<SchedulBottomSheet> {
                         initialValue: '',
                       ),
                       // SizedBox(height: 16.0),
-
                       SizedBox(height: 8.0),
                       _SaveButton(
                         onPressed: onSavePressed,
@@ -200,7 +183,8 @@ class _SchedulBottomSheetState extends State<SchedulBottomSheet> {
       ).toUtc();
 
       String formattedDateTime = outputDateTime2.toIso8601String();
-      formattedDateTime = formattedDateTime.replaceFirst(RegExp(r'Z$'), '+09:00');
+      formattedDateTime =
+          formattedDateTime.replaceFirst(RegExp(r'Z$'), '+09:00');
       print(formattedDateTime);
       DateFormat outputDateFormat = DateFormat("yyyy-MM-dd");
       String startdate = outputDateFormat.format(SelectedTime!);

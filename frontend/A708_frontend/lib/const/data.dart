@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const ROOM = ['안방', '화장실', '거실', '작은방','거실', '작은방'];
+const ROOM = ['거실', '안방', '서재', '작은방','화장실', '현관'];
 const rainbowColors = [
   Colors.red,
   Colors.orange,
@@ -54,3 +54,39 @@ const LOGINFO = [
   LogInfo(location: '일정', content: '점심약 복용', endtime: 210, index: 2),
   LogInfo(location: '거실', content: '에어컨이 꺼졌습니다.', endtime: 260, index: 0),
 ];
+
+
+
+Map socket_data = {
+"type": "robot",
+"id": 1,
+"to": 1,
+'message': {
+"living_room": {
+"light": {"status": "OFF", "pose": [-5.54, 5.31]},
+"air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "target": 23, "pose": [-2.68, 4.38]},
+"tv": {"status": "OFF", "pose": [-5.54, 5.31]},
+},
+"inner_room": {
+"light": {"status": "OFF", "pose": [0, 0]},
+"air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "pose": [-10.0, 4.79]},
+"air_cleaner": {"status": "OFF", "mode": "high", "pose": [-12.29, 6.20]},
+},
+"library": {
+"light": {"status": "OFF", "pose": [0, 0]},
+"air_cleaner": {"status": "OFF", "pose": [-4.04, 12.02]},
+},
+"small_room": {
+"light": {"status": "OFF", "pose": [0, 0]},
+"air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "pose": [0, 0]},
+"tv": {"status": "OFF", "pose": [-3.64, 14.97]},
+},
+"toilet": {
+"light": {"status": "OFF", "pose": [0, 0]},
+},
+"entrance": {
+"light": {"status": "OFF", "pose": [0, 0]},
+},
+}
+
+};

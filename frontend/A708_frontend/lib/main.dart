@@ -11,10 +11,10 @@ import 'package:get_it/get_it.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 void main() async {
-  KakaoSdk.init(nativeAppKey: '2851dab63468fc5098929a40e856462c');
 
-  WidgetsFlutterBinding.ensureInitialized();
-  // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  // WidgetsFlutterBinding.ensureInitialized();
+  // // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  KakaoSdk.init(nativeAppKey: '2851dab63468fc5098929a40e856462c');
 
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   // FlutterNativeSplash.remove();
@@ -25,7 +25,7 @@ void main() async {
         initialRoute: '/',
         routes: {
           '/': (context) => SplashScreen(),
-          '/home': (context) => MainScreen(),
+          // '/home': (context) => MainScreen(),
           // '/intro':(context) => IntroScreen(),
           // '/calendar': (context) => CalendarScreen(),
           // '/log':(context)=>LogScreen(),

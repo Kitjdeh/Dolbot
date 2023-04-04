@@ -19,20 +19,23 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     // Connect to the socket server
-    IO.Socket socket = IO.io('http://3.36.67.119:8081',
+    IO.Socket socket = IO.io('http://j8a708.p.ssafy.io:8081',
         IO.OptionBuilder().setTransports(['websocket']).build());
     socket.onConnect((_) {
-      // socket.emit('init_user', message);
+      print('222222');
       Map<String, dynamic> weather = {
         'type': 'user',
         'id': 1,
-        'to': 1,
+        'to': 708001,
         'message': 'True'
       };
-
+      print('이닛 유저 직전1');
+      String message = jsonEncode(weather);
+      socket.emit('init_user', message);
+      print('이닛 유저 직전2');
       String request_weather = jsonEncode(weather);
       socket.emit('user_message', request_weather);
-      print('connect');
+      print('home_screen_connect');
       // socket.emit('user_message', message);
     });
     // Listen for weather updates

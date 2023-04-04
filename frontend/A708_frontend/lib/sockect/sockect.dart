@@ -20,20 +20,20 @@ class StreamSocket {
 }
 
 void connectAndListen(message) {
-  IO.Socket socket = IO.io('http://3.36.67.119:8081',
+  IO.Socket socket = IO.io('https://j8a708.p.ssafy.io/socket',
       IO.OptionBuilder().setTransports(['websocket']).build());
   socket.onConnect((_) {
     socket.emit('init_user', message);
     Map<String, dynamic> weather = {
       'type': 'user',
       'id': 1,
-      'to': 1,
+      'to': 708001,
       'message': 'True'
     };
-
+    print('123123');
     String request_weather = jsonEncode(weather);
     socket.emit('user_message', request_weather);
-    print('connect');
+    print('connectdddddddddddd');
     // socket.emit('user_message', message);
   });
   socket.on('weather_status', (data) {
@@ -50,7 +50,7 @@ void connectAndListen(message) {
 }
 
 void SendMessage(message) {
-  IO.Socket socket = IO.io('http://3.36.67.119:8081',
+  IO.Socket socket = IO.io('http://j8a708.p.ssafy.io:8081',
       IO.OptionBuilder().setTransports(['websocket']).build());
   socket.emit('appliance_status', message);
   print('send success');
@@ -59,7 +59,7 @@ void SendMessage(message) {
 Map<String, dynamic> toJson = {
   't': 'user',
   'id': 1,
-  'to': 1,
+  'to': 708001,
   'message': 'connect'
 };
 
@@ -91,7 +91,6 @@ class JStr {
     required this.message,
   });
 }
-
 
 class Weather {
   final String type;

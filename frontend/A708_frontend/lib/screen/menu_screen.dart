@@ -24,7 +24,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    connectAndListen('asdf');
+    // connectAndListen('asdf');
     return Scaffold(
         appBar: AppBar(
           title: Text('메뉴바'),

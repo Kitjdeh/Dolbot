@@ -1,10 +1,19 @@
+import 'package:dolbot/component/login/kakao_login.dart';
 import 'package:dolbot/const/tabs.dart';
 import 'package:dolbot/screen/cctv_screen.dart';
 import 'package:dolbot/screen/home_screen.dart';
+import 'package:dolbot/screen/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk_user.dart';
+import 'package:dolbot/component/login/kakao_login.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  String? username;
+  int? kakaoID;
+  String? profile;
+
+  MainScreen({this.username, this.kakaoID, this.profile, Key? key})
+      : super(key: key);
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -12,6 +21,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   late final TabController controller;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -34,11 +44,17 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              '반가워요 정민님',
-              style: TextStyle(fontSize: 20, color: Colors.black),
+            Row(
+              children: [
+                SizedBox( height:30, child: Image.network(widget?.profile ?? '')),
+                Text(
+                  '반가워요 ${widget?.username}님',
+                  style: TextStyle(fontSize: 20, color: Colors.black),
+                ),
+              ],
             ),
-            Text('김원혁님의 홈', style: TextStyle(fontSize: 12, color: Colors.black))
+            Text('${widget?.username} 홈',
+                style: TextStyle(fontSize: 12, color: Colors.black))
           ],
         ),
       ),

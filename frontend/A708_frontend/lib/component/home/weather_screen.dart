@@ -36,7 +36,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   void initState() {
     super.initState();
     // Connect to the socket server
-    IO.Socket socket = IO.io('http://3.36.67.119:8081',
+    IO.Socket socket = IO.io('http://j8a708.p.ssafy.io:8081',
         IO.OptionBuilder().setTransports(['websocket']).build());
     Map<String, dynamic> weather = {
       'type': 'user',

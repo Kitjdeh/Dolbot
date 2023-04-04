@@ -1,15 +1,32 @@
+import 'dart:convert';
+
+import 'package:dolbot/component/alert/toast.dart';
+import 'package:dolbot/sockect/sockect.dart';
 import 'package:flutter/material.dart';
 
+Map<String, int> numbering = {'low': 0, 'middle': 1, 'high': 2};
+
 class AirCleaner extends StatefulWidget {
-  const AirCleaner({Key? key}) : super(key: key);
+  String mode;
+  String room;
+
+
+  AirCleaner({required this.mode, required this.room, Key? key})
+      : super(key: key);
 
   @override
   State<AirCleaner> createState() => _AirCleanerState();
 }
 
 class _AirCleanerState extends State<AirCleaner> {
+
+  List<bool> isSelectedMode = [false, false, false];
+
+
   @override
   Widget build(BuildContext context) {
+    int num = numbering[widget.mode] ?? 0;
+    isSelectedMode[num] = true;
     return Container(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -30,8 +47,8 @@ class _AirCleanerState extends State<AirCleaner> {
                     spreadRadius: 5.0,
                   )
                 ],
-
-                border: Border.all(color: Colors.greenAccent[100]!, width: 10.0),
+                border:
+                    Border.all(color: Colors.greenAccent[100]!, width: 10.0),
                 color: Colors.greenAccent,
                 borderRadius: BorderRadius.circular(250.0)),
             child: Column(
@@ -42,9 +59,8 @@ class _AirCleanerState extends State<AirCleaner> {
                         TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
                 Container(
                     width: MediaQuery.of(context).size.height / 5,
-                    decoration: BoxDecoration(
-
-                        borderRadius: BorderRadius.circular(100)),
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(100)),
                     child: Image.asset('asset/img/smile.gif')),
                 Text(
                   '좋아요',
@@ -67,25 +83,49 @@ class _AirCleanerState extends State<AirCleaner> {
                 isSelected: isSelectedMode,
                 onPressed: (int index) {
                   setState(() {
+                    print(index);
                     for (int buttonIndex = 0;
-                        buttonIndex < isSelectedMode.length;
+                        buttonIndex < 3;
                         buttonIndex++) {
                       if (buttonIndex == index) {
                         isSelectedMode[buttonIndex] = true;
+                        if (buttonIndex == 0) {
+                          widget.mode = 'low';
+                        } else if (buttonIndex == 1) {
+                          widget.mode = 'mid';
+                        } else if (buttonIndex == 2) {
+                          widget.mode = 'high';
+                        }
                       } else {
                         isSelectedMode[buttonIndex] = false;
                       }
                     }
                   });
                 },
-                children: [Text('약풍'), Text('난방'), Text('제습')],
+                children: [Text('약풍'), Text('중풍'), Text('강풍')],
               ),
             ],
           ),
+          ElevatedButton(
+              onPressed: () {
+                Map<String, dynamic> A = {
+                  'type': 'user',
+                  'id': 1,
+                  'to': 708001,
+                  'message': {
+                    'room': widget.room,
+                    'device': 'air_cleaner',
+                    'status': 'ON',
+                    "mode": widget.mode
+                  }
+                };
+                String message = jsonEncode(A);
+                SendMessage(message);
+                toast(context, '기기 명령이 전달되었습니다.');
+              },
+              child: Text('작동'))
         ],
       ),
     );
   }
 }
-
-List<bool> isSelectedMode = [true, false, false];

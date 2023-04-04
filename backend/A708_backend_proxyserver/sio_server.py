@@ -106,13 +106,15 @@ def cctv_on(sid,data):
     robotId = str(dict['to'])
     userId = str(dict['id'])
      
-    if(target[robotId] )
+    #
+    if userId in target[robotId]:
+        return
     target[robotId].append(userId)
 
 # 유저가 CCTV 화면을 끔
 @sio.event
 def cctv_off(sid,data):
-    print("cctv_on")
+    print("cctv_off")
     print(data)
     dict = json.loads(data)
     robotId = str(dict['to'])

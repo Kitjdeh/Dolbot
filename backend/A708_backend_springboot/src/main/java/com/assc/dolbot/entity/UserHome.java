@@ -43,7 +43,7 @@ public class UserHome {
 	@Column(nullable = false)
 	private int homeId;
 
-	@Column(nullable = false)
+	@Column(nullable = false, length = 50)
 	private String nickname;
 
 	@Column(nullable = false)
@@ -54,6 +54,7 @@ public class UserHome {
 	private LocalDateTime createdAt;
 
 	@LastModifiedDate
+	@Column(nullable = false)
 	private LocalDateTime updatedAt;
 
 	public UserHomeDto toDto(){

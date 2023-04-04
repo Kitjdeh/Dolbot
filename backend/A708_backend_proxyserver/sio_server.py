@@ -2,8 +2,9 @@ import socketio
 import eventlet
 import json
 
-users = {};
-robots = {};
+users = {}
+robots = {}
+target={}
 
 sio = socketio.Server()
 app = socketio.WSGIApp(sio)
@@ -24,6 +25,7 @@ def init_robot(sid, data):
     print(data)
     dict = json.loads(data)
     robots[str(dict['id'])] = sid
+    target[str(dict['id'])] = []
     print('robot-sid 매핑:', dict['id'], robots[str(dict['id'])])
 
 # 유저의 정보를 등록하는 함수
@@ -85,7 +87,7 @@ def robot_message(sid, data):  # sid는 socket의 id
     robots[str(dict['id'])] = sid
     sio.emit('user_message', data, to=users[str(dict['to'])])
 
-#유저가 로봇에게 보내는 메시지
+#유저가 로봇에게 보내는 메시지, 기기 정보 요청
 @sio.event
 def user_message(sid, data):  # sid는 socket의 id
     print("user_message")
@@ -95,36 +97,44 @@ def user_message(sid, data):  # sid는 socket의 id
     users[str(dict['id'])] = sid
     sio.emit('robot_message', data, to=robots[str(dict['to'])])
 
+# 유저가 CCTV 화면을 킴
 @sio.event
-def chat_message(sid, data):
+def cctv_on(sid,data):
+    print("cctv_on")
+    print(data)
     dict = json.loads(data)
+    robotId = str(dict['to'])
+    userId = str(dict['id'])
+     
+    #
+    if userId in target[robotId]:
+        return
+    target[robotId].append(userId)
 
-    if dict['type'] == 'robot':
-        if dict['message'] == 'connect':
-            print(str(dict['type']) + "번 로봇 참여")
-            robots[str(dict['id'])] = sid
-            sio.emit('chat_message', "환영합니다 " + str(dict["id"]) + "번 로봇", to=sid)
-        else:
-            sio.emit('chat_message', data, to=users[str(dict['to'])])
-    else: 
-        if dict['message'] == 'connect':
-            print(str(dict['type']) + "번 어플 참여")
-            users[str(dict['id'])] = sid
-            sio.emit('chat_message', "환영합니다 " + str(dict["id"]) + "번 어플", to=sid)
-        else:
-            sio.emit('chat_message', data, to=robots[str(dict['to'])])
-
-target={}
+# 유저가 CCTV 화면을 끔
 @sio.event
-def targeting(sid,data):
+def cctv_off(sid,data):
+    print("cctv_off")
+    print(data)
     dict = json.loads(data)
-    robotSid = robots[str(dict['id'])]
-    userSid = users[str(dict['to'])] 
-    target[robotSid] = userSid 
+    robotId = str(dict['to'])
+    userId = str(dict['id']) 
+    target[robotId].remove(userId)
 
+# 로봇이 CCTV를 킨 유저들에게 영상을 송출
 @sio.event
 def video(sid,data): 
-    sio.emit('video',data, to=target[str(sid)])
+    dict = json.loads(data)
+    for i in target[str(dict['id'])]:
+        sio.emit('video',data, to=users[i])
+
+#cctv 조작
+@sio.event
+def cctv(sid,data):
+    print("cctv")
+    dict = json.loads(data)
+    print(data)
+    sio.emit('cctv',data, to=robots[str(dict['to'])])
 
 if __name__ == '__main__':
     eventlet.wsgi.server(eventlet.listen(('', 8081)), app)

@@ -26,7 +26,7 @@ public class UserHomeController {
 	public ResponseEntity<String> userHomeAdd(@RequestBody UserHomeDto userHomeDto) {
 		try{
 			if(!userHomeService.addUserHome(userHomeDto)){
-				return new ResponseEntity<>(FAIL, HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(FAIL, HttpStatus.NOT_FOUND);
 			}
 			return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
 		}catch(Exception e){

@@ -3,12 +3,14 @@ package com.assc.dolbot.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.assc.dolbot.dto.UserHomeDto;
+import com.assc.dolbot.entity.Home;
 import com.assc.dolbot.service.UserHomeService;
 
 @RestController
@@ -23,15 +25,19 @@ public class UserHomeController {
 
 	//로봇등록
 	@PostMapping
-	public ResponseEntity<String> userHomeAdd(@RequestBody UserHomeDto userHomeDto) {
+	public ResponseEntity<UserHomeDto> userHomeAdd(@RequestBody UserHomeDto userHomeDto) {
 		try{
-			if(!userHomeService.addUserHome(userHomeDto)){
-				return new ResponseEntity<>(FAIL, HttpStatus.NOT_FOUND);
+			userHomeDto = userHomeService.addUserHome(userHomeDto);
+			if(userHomeDto.getStatus() == 1){
+				return new ResponseEntity<>(userHomeDto, HttpStatus.NOT_FOUND);
+			}else if(userHomeDto.getStatus() == 2){
+				return new ResponseEntity<>(userHomeDto, HttpStatus.CONFLICT);
 			}
-			return new ResponseEntity<>(SUCCESS, HttpStatus.OK);
+
+			return new ResponseEntity<>(userHomeDto, HttpStatus.OK);
 		}catch(Exception e){
 			e.printStackTrace();
-			return new ResponseEntity<>(FAIL, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(userHomeDto, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

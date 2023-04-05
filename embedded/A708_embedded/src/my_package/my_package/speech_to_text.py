@@ -11,6 +11,7 @@ from gtts import gTTS
 from playsound import playsound
 import threading
 import time
+import json
 
 import os
 from . import iot_udp
@@ -27,33 +28,70 @@ mode = ['cool', 'mid']
 cmd = {'room': 'living_room', 'device': 'tv', 'status': 'OFF','mode': '','speed':'mid','target':18}
 
 key_status=''
+file_path = os.getcwd()
+
+appliances = {
+    "living_room": {  # 거실 (조명/에어컨/TV)
+        "light": {"status": "OFF", "pose": [0, 0]},
+        "air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "target": 23, "pose": [0, 0]},
+        # mode = cool, warm, dry
+        # speed = high, mid, low
+        "tv": {"status": "OFF", "pose": [-6.36, 15.33]},
+    },
+    "inner_room": {  # 안방 (조명/에어컨/공기청정기)
+        "light": {"status": "OFF", "pose": [0, 0]},
+        "air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "pose": [0, 0]},
+        "air_cleaner": {"status": "OFF", "mode": "high", "pose": [0, 0]},
+        # mode = high, mid, low
+    },
+    "library": {  # 서재 (조명/공기청정기)
+        "light": {"status": "OFF", "pose": [0, 0]},
+        "air_cleaner": {"status": "OFF", "pose": [0, 0]},
+    },
+    "small_room": {  # 작은방 (조명/에어컨/TV)
+        "light": {"status": "OFF", "pose": [0, 0]},
+        "air_conditioner": {"status": "OFF", "mode": "cool", "speed": "mid", "pose": [0, 0]},
+        "tv": {"status": "OFF", "pose": [0, 0]},
+    },
+    "toilet": {  # 화장실 (조명)
+        "light": {"status": "OFF", "pose": [0, 0]},
+    },
+    "entrance": {  # 현관 (조명)
+        "light": {"status": "OFF", "pose": [0, 0]},
+    },
+}
 
 # STT
 def speechToText():
-    language_code = "ko-KR"  # a BCP-47 language tag
+    
+     global appliances
+     with open(file_path+ "/appliance.json", 'r') as file:
+          appliances = json.load(file)
 
-    client = speech.SpeechClient()
-    config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=RATE,
-        language_code=language_code,
-    )
+     language_code = "ko-KR"  # a BCP-47 language tag
 
-    streaming_config = speech.StreamingRecognitionConfig(
-        config=config, interim_results=True
-    )
+     client = speech.SpeechClient()
+     config = speech.RecognitionConfig(
+          encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+          sample_rate_hertz=RATE,
+          language_code=language_code,
+     )
 
-    with MicrophoneStream(RATE, CHUNK) as stream:
-        audio_generator = stream.generator()
-        requests = (
-            speech.StreamingRecognizeRequest(audio_content=content)
-            for content in audio_generator
-        )
+     streaming_config = speech.StreamingRecognitionConfig(
+          config=config, interim_results=True
+     )
 
-        responses = client.streaming_recognize(streaming_config, requests)
+     with MicrophoneStream(RATE, CHUNK) as stream:
+          audio_generator = stream.generator()
+          requests = (
+               speech.StreamingRecognizeRequest(audio_content=content)
+               for content in audio_generator
+          )
 
-        # Now, put the transcription responses to use.
-        listen_print_loop(responses)
+          responses = client.streaming_recognize(streaming_config, requests)
+
+          # Now, put the transcription responses to use.
+          listen_print_loop(responses)
 
 # TTS
 def speak(text):
@@ -65,7 +103,7 @@ def speak(text):
      filename='voice.mp3'
      tts.save(filename)
 
-     print('STT path', os.getcwd())
+     # print('STT path', os.getcwd())
 
      f = open(os.getcwd()+"/data/key_status.txt", 'r')
      key_status = f.read() 
@@ -92,6 +130,9 @@ def answer(input_text):
 
      elif '어디' in input_text:
           speak('네 어르신 저 여기에 있어요.')
+     
+     elif '살려 줘' in input_text or '살려 조' in input_text or '살려 저' in input_text or '도와 줘' in input_text or '살려줘' in input_text or '살려조' in input_text or '살려저' in input_text or '도와줘' in input_text:
+          speak('어르신, 괜찮으세요? 보호자님께 긴급 알람을 보낼게요.')
 
      else:
           room=''
@@ -162,33 +203,49 @@ def answer(input_text):
           elif '꺼' in input_text:
                status='OFF'
           
+
           if room!='' and appliance!='' and status!='':
-               speak('네')
-               speak_text=room_text+'의 '+appliance_text
-               if appliance_text=='공기청정기' or appliance_text=='티비':
-                    speak_text+='를 '
-               else:
-                    speak_text+='을 '
-               if status=='ON':
-                    speak_text+='켜드릴게요.'
-               else:
-                    speak_text+='꺼드릴게요.'
-               speak(speak_text)
-               print(room, appliance, status)
-               
-               cmd['room'] = room
-               cmd['device'] = appliance
-               cmd['status'] = status
+               if appliances[room][appliance]['status']=="ON" and status=='OFF' or appliances[room][appliance]['status']=="OFF" and status=='ON':
+                    speak('네')
+                    speak_text=room_text+'의 '+appliance_text
+                    if appliance_text=='공기청정기' or appliance_text=='티비':
+                         speak_text+='를 '
+                    else:
+                         speak_text+='을 '
+                    if status=='ON':
+                         speak_text+='켜드릴게요.'
+                    else:
+                         speak_text+='꺼드릴게요.'
+                    speak(speak_text)
+                    print(room, appliance, status)
+                    
+                    cmd['room'] = room
+                    cmd['device'] = appliance
+                    cmd['status'] = status
 
-               if appliance=='air_conditioner':
-                    cmd['mode'] = mode[0]
-               elif appliance == 'air_cleaner':
-                    cmd['mode'] = mode[1]
+                    if appliance=='air_conditioner':
+                         cmd['mode'] = mode[0]
+                    elif appliance == 'air_cleaner':
+                         cmd['mode'] = mode[1]
 
-               iot_udp.iot.device_control(cmd)
+                    iot_udp.iot.device_control(cmd)
                
+               elif appliances[room][appliance]['status']=="ON" and status=='ON':
+                    if appliance=='air_conditioner':
+                         speak('어르신 '+appliance_text+'은 이미 켜져있어요.')
+                    elif appliance=='tv' or appliance=='air_cleaner':
+                         speak('어르신 '+appliance_text+'는 이미 켜져있어요.')
+
+               elif appliances[room][appliance]["status"]=="OFF" and status=="OFF":
+                    if appliance=='air_conditioner':
+                         speak('어르신 '+appliance_text+'은 이미 꺼져있어요.')
+                    elif appliance=='tv' or appliance=='air_cleaner':
+                         speak('어르신 '+appliance_text+'는 이미 꺼져있어요.')
+
           else:
                speak('방 이름과 가전기기를 함께 말해주세요.')
+               
+          
 
 class MicrophoneStream(object):
 
@@ -198,7 +255,7 @@ class MicrophoneStream(object):
 
         self._buff = queue.Queue()
         self.closed = True
-        print("path ", os.getcwd())
+     #    print("path ", os.getcwd())
 
     def __enter__(self):
         self._audio_interface = pyaudio.PyAudio()
@@ -250,7 +307,7 @@ def listen_print_loop(responses):
      global stt_flag
      global key_status
      num_chars_printed = 0
-     
+
      for response in responses:
           if not response.results:
                continue
@@ -262,12 +319,15 @@ def listen_print_loop(responses):
           transcript = result.alternatives[0].transcript
           overwrite_chars = " " * (num_chars_printed - len(transcript))
 
-
-          print('STT path', os.getcwd())
+          # print('STT path', os.getcwd())
 
           f = open(os.getcwd()+"/data/key_status.txt", 'r')
           key_status = f.read() 
           f.close()
+
+          global appliances
+          with open(file_path+ "/appliance.json", 'r') as file:
+               appliances = json.load(file)
 
           if not result.is_final:
                sys.stdout.write(transcript + overwrite_chars + "\r")

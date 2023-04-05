@@ -166,7 +166,7 @@ weather = ''
 is_weather = False
 
 sio = socketio.Client()
-user_id=0
+user_id=1
 socket_data = {
     "type": "robot",  # !!!t를 type으로 변경했습니다!!!
     "id": 708001,  # robot ID

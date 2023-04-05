@@ -25,7 +25,6 @@ def init_robot(sid, data):
     print(data)
     dict = json.loads(data)
     robots[str(dict['id'])] = sid
-    target[str(dict['id'])] = []
     print('robot-sid 매핑:', dict['id'], robots[str(dict['id'])])
 
 # 유저의 정보를 등록하는 함수
@@ -105,8 +104,10 @@ def cctv_on(sid,data):
     dict = json.loads(data)
     robotId = str(dict['to'])
     userId = str(dict['id'])
-     
-    #
+    if robotId not in target:
+        print("등록" + robotId)
+        target[robotId] = []
+    
     if userId in target[robotId]:
         return
     target[robotId].append(userId)
@@ -125,7 +126,12 @@ def cctv_off(sid,data):
 @sio.event
 def video(sid,data): 
     dict = json.loads(data)
+    print("video")
+    print(target)
+    if str(dict['id']) not in target:
+        return
     for i in target[str(dict['id'])]:
+        print(users[i])
         sio.emit('video',data, to=users[i])
 
 #cctv 조작

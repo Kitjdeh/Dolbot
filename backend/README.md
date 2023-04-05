@@ -5,3 +5,4 @@
 2023-03-24 user REST API 구현
 2023-03-27 log REST API 구현
 2023-03-27 중계 서버 weather_status, appliance_status 구현
+2023-03-30 테스트 코드 구현

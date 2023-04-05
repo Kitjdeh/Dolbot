@@ -26,6 +26,8 @@ stt_flag=False
 mode = ['cool', 'mid']
 cmd = {'room': 'living_room', 'device': 'tv', 'status': 'OFF','mode': '','speed':'mid','target':18}
 
+key_status=''
+
 # STT
 def speechToText():
     language_code = "ko-KR"  # a BCP-47 language tag
@@ -55,13 +57,22 @@ def speechToText():
 
 # TTS
 def speak(text):
+     global key_status
      if text=='':
           return
      print('[AI] '+ text)
      tts = gTTS(text=text, lang='ko')
      filename='voice.mp3'
      tts.save(filename)
-     playsound(filename)
+
+     print('STT path', os.getcwd())
+
+     f = open(os.getcwd()+"/data/key_status.txt", 'r')
+     key_status = f.read() 
+     f.close()
+
+     if key_status=='True':
+          playsound(filename)
 
      if os.path.exists(filename):
           os.remove(filename)
@@ -187,6 +198,7 @@ class MicrophoneStream(object):
 
         self._buff = queue.Queue()
         self.closed = True
+        print("path ", os.getcwd())
 
     def __enter__(self):
         self._audio_interface = pyaudio.PyAudio()
@@ -235,41 +247,48 @@ class MicrophoneStream(object):
 
 def listen_print_loop(responses):
 
-    global stt_flag
-    num_chars_printed = 0
-    for response in responses:
-        if not response.results:
-            continue
+     global stt_flag
+     global key_status
+     num_chars_printed = 0
+     
+     for response in responses:
+          if not response.results:
+               continue
 
-        result = response.results[0]
-        if not result.alternatives:
-            continue
+          result = response.results[0]
+          if not result.alternatives:
+               continue
 
-        transcript = result.alternatives[0].transcript
-
-        overwrite_chars = " " * (num_chars_printed - len(transcript))
-
-        if not result.is_final:
-            sys.stdout.write(transcript + overwrite_chars + "\r")
-            sys.stdout.flush()
-
-            num_chars_printed = len(transcript)
-
-        else:
-            print("[USER] "+transcript)
-
-            if stt_flag==False and '돌쇠' in transcript:
-                # playsound('start.mp3')
-                speak('안녕하세요. 어르신을 케어하는 로봇 돌봇입니다. 무엇을 도와드릴까요?')
-                stt_flag=True
-            
-            elif stt_flag==True:
-                answer(transcript)
+          transcript = result.alternatives[0].transcript
+          overwrite_chars = " " * (num_chars_printed - len(transcript))
 
 
-            if re.search(r"\b(종료)\b", transcript, re.I):
-                print("Exiting..")
-                break
+          print('STT path', os.getcwd())
 
-            num_chars_printed = 0
+          f = open(os.getcwd()+"/data/key_status.txt", 'r')
+          key_status = f.read() 
+          f.close()
+
+          if not result.is_final:
+               sys.stdout.write(transcript + overwrite_chars + "\r")
+               sys.stdout.flush()
+
+               num_chars_printed = len(transcript)
+
+          else:
+               print("[USER] "+transcript)
+
+               if stt_flag==False and '돌쇠' in transcript and key_status=='True':
+                    # playsound('start.mp3')
+                    speak('안녕하세요. 어르신을 케어하는 로봇 돌봇입니다. 무엇을 도와드릴까요?')
+                    stt_flag=True
+               
+               elif stt_flag==True:
+                    answer(transcript)
+
+               if re.search(r"\b(종료)\b", transcript, re.I):
+                    print("Exiting..")
+                    break
+
+               num_chars_printed = 0
 

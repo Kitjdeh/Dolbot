@@ -19,6 +19,7 @@ import threading
 import requests
 import json
 from time import localtime
+from pynput import keyboard
 
 url='https://j8a708.p.ssafy.io'
 
@@ -139,11 +140,15 @@ class iot_udp(Node):
         thread.daemon = True
         thread.start()
 
-        self.is_recv_data = False
+        # key 입력 스레드 생성
+        key_t = threading.Thread(target=self.keyevent)
+        key_t.daemon = True
+        key_t.start()
 
+        self.is_recv_data = False
         self.is_get_name = False
 
-        os.system('cls')
+        # os.system('cls')
 
     def device_control(self, cmd):
         with open(file_path+ "/appliance.json", 'r') as file:
@@ -391,6 +396,34 @@ class iot_udp(Node):
         self.sock.close()
         print('del')
 
+    # Key 입력 스레드 관련 메서드
+    def keyevent(self):
+        with keyboard.Listener(on_press=self.on_press) as listener:
+            listener.join()
+    
+    def on_press(self, key):
+        if "Key.space" == str(key):
+            print('space bar click!!!')
+
+            # txt 파일에 True -> False, False -> True
+            # speech_to_text에서 파일의 값이 True일때만 음성 출력
+            key_status=''
+            f1 = open(file_path+"/data/key_status.txt", 'r')
+            key_status = f1.read() 
+            f1.close()
+           
+            key_now_status=''
+            if key_status=='False':
+                key_now_status='True'
+            elif key_status=='True':
+                key_now_status='False'
+            print("이전 : ", key_status)
+            print('현재 : ', key_now_status)
+
+            f2 = open(file_path+"/data/key_status.txt", 'w')
+            f2.write(key_now_status)
+            f2.close()
+
 
 iot = ''
 
@@ -449,6 +482,7 @@ def appliance_status(data):
     dict2 = dict["message"]
     iot.device_control(dict2)
 
+
 def main(args=None):
 
     # STT Thread (관련 파일은 import 해서 사용)
@@ -459,6 +493,7 @@ def main(args=None):
     rclpy.init(args=args)
     global iot
     iot = iot_udp()
+
     rclpy.spin(iot)
     iot.destroy_node()
     rclpy.shutdown()

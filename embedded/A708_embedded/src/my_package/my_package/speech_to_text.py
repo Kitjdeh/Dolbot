@@ -63,6 +63,14 @@ appliances = {
 
 # STT
 def speechToText():
+
+     key_status=''
+     f1 = open(file_path+"/data/key_status.txt", 'r')
+     key_status = f1.read() 
+     f1.close()
+     if key_status == "False":
+          print("cancle")
+          return
     
      global appliances
      with open(file_path+ "/appliance.json", 'r') as file:
@@ -133,6 +141,9 @@ def answer(input_text):
      
      elif '살려 줘' in input_text or '살려 조' in input_text or '살려 저' in input_text or '도와 줘' in input_text or '살려줘' in input_text or '살려조' in input_text or '살려저' in input_text or '도와줘' in input_text:
           speak('어르신, 괜찮으세요? 보호자님께 긴급 알람을 보낼게요.')
+     
+     elif '종료' in input_text:
+          speak('듣기를 종료합니다')
 
      else:
           room=''

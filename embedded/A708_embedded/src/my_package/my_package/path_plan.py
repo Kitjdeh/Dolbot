@@ -35,7 +35,7 @@ class a_star(Node):
         self.odom_sub = self.create_subscription(
             Odometry, 'odom', self.odom_callback, 1)
         self.goal_sub = self.create_subscription(
-            PoseStamped, 'goal_pose', self.goal_callback, 1)
+            PoseStamped, '/goal_pose', self.goal_callback, 1)
         self.a_star_pub = self.create_publisher(Path, 'global_path', 1)
         self.status_sub = self.create_subscription(
             TurtlebotStatus, '/turtlebot_status', self.status_callback, 10)
@@ -121,6 +121,7 @@ class a_star(Node):
             # 로직 6. goal_pose 메시지 수신하여 목표 위치 설정
             goal_x = msg.pose.position.x
             goal_y = msg.pose.position.y
+            goal_w = msg.pose.orientation.w
             if goal_y==100.0 and goal_x==100.0:
                 self.final_path.reverse()
                 print("돌아가기!")
@@ -170,7 +171,7 @@ class a_star(Node):
                 # 다익스트라 알고리즘을 완성하고 주석을 해제 시켜주세요.
                 # 시작지, 목적지가 탐색가능한 영역이고, 시작지와 목적지가 같지 않으면 경로탐색을 합니다.
                 if self.grid[start_grid_cell[1]][start_grid_cell[0]] == 0 and self.grid[self.goal[1]][self.goal[0]] == 0 and start_grid_cell != self.goal:
-                    self.dijkstra([start_grid_cell[1], start_grid_cell[0]])
+                    self.dijkstra([start_grid_cell[1], start_grid_cell[0]],goal_w)
                     print("다익스트라 종료!")
 
                 self.global_path_msg = Path()
@@ -190,7 +191,7 @@ class a_star(Node):
                         self.a_star_pub.publish(self.global_path_msg)
                         print("메세지 전송 완료")
 
-    def dijkstra(self, start):
+    def dijkstra(self, start, w):
         Q = deque()
         Q.append(start)
         self.cost[start[0]][start[1]] = 1

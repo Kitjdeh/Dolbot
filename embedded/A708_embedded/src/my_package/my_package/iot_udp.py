@@ -118,11 +118,15 @@ class iot_udp(Node):
         self.status_sub = self.create_subscription(
             TurtlebotStatus, '/turtlebot_status', self.status_callback, 10)
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.goal_sub = self.create_subscription(
+            PoseStamped, '/goal_pose2', self.goal_callback, 1)
 
         self.status_msg = TurtlebotStatus()
         self.cmd_msg = Twist()
+        self.elder_pose = PoseStamped()
         self.is_status = False
         self.is_drive = False
+        self.is_goal = False
 
         self.ip = '127.0.0.1'
         self.port = 7502
@@ -249,6 +253,17 @@ class iot_udp(Node):
                 self.cmd_msg.angular.z = 0.0
                 self.cmd_pub.publish(self.cmd_msg)
                 time.sleep(0.5)
+                print("return finish")
+                if self.is_goal:
+                    print("go to human")
+                    self.goal_pub.publish(self.elder_pose)
+                    print(self.elder_pose)
+                    self.is_goal = False
+                    while not (self.elder_pose.pose.position.x-0.1 <= self.status_msg.twist.angular.x <= self.elder_pose.pose.position.x+0.1) or not (self.elder_pose.pose.position.y-0.1 <= self.status_msg.twist.angular.y <= self.elder_pose.pose.position.y+0.1):
+                        continue
+                    self.cmd_msg.linear.x = 0.0
+                    self.cmd_msg.angular.z = 0.0
+                    self.cmd_pub.publish(self.cmd_msg)
                 print("return")
 
             else:
@@ -258,6 +273,14 @@ class iot_udp(Node):
                 json.dump(appliance, file, indent="\t")
         else:
             print("already ", status)
+
+    def goal_callback(self, msg):
+
+        if self.is_goal == False:
+            self.elder_pose = msg
+        self.is_goal = True
+        print("human:",msg)
+
 
     def status_callback(self, msg):
         self.status_msg = msg

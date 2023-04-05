@@ -76,7 +76,7 @@
 			"target": 18
 		},
 		"tv": {
-			"status": "ON",
+			"status": "OFF",
 			"pose": [
 				-3.71,
 				15.236

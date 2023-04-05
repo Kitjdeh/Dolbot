@@ -25,6 +25,22 @@ params_cam_0 = {
     "ROLL": 0
 }
 
+params_cam_1 = {
+    "SOCKET_TYPE": 'JPG',
+    "WIDTH": 320, # image width
+    "HEIGHT": 240, # image height
+    "FOV": 60, # Field of view
+    "localIP": "127.0.0.1",
+    "localPort": 1234,
+    "Block_SIZE": int(65535),
+    "UnitBlock_HEIGHT": int(30),
+    "X": 1.7, # meter
+    "Y": 0,
+    "Z": 1.2,
+    "YAW": 0, # deg
+    "PITCH": -5,
+    "ROLL": 0
+}
 
 class IMGPublisher(Node):
 
@@ -32,7 +48,10 @@ class IMGPublisher(Node):
         super().__init__(node_name='IMGPublisher')
 
         self.publisher_ = self.create_publisher(CompressedImage, '/image_jpeg/compressed', 10)
-        self.udp_parser = UDP_CAM_Parser(self.publisher_, ip=params_cam_0["localIP"], port=params_cam_0["localPort"], params_cam=params_cam_0)        
+        self.udp_parser = UDP_CAM_Parser(self.publisher_, ip=params_cam_0["localIP"], port=params_cam_0["localPort"], params_cam=params_cam_0)
+
+        self.publisher_2 = self.create_publisher(CompressedImage, '/image_jpeg/compressed/cctv', 10)
+        self.udp_parser2 = UDP_CAM_Parser(self.publisher_2, ip=params_cam_1["localIP"], port=params_cam_1["localPort"], params_cam=params_cam_1)        
 
 
 def main(args=None):

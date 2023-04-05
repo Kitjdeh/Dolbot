@@ -8,9 +8,13 @@ import struct
 import binascii
 import socketio
 import json
+import numpy as np
+import cv2
+
 from nav_msgs.msg import Path
 from ssafy_msgs.msg import TurtlebotStatus
 from geometry_msgs.msg import Pose, PoseStamped, Twist
+from sensor_msgs.msg import CompressedImage
 
 room_point = {
     "living_room": [-6.209,7.678,-54.168],
@@ -35,7 +39,8 @@ socket_data = {
     "type": "robot",  # !!!t를 type으로 변경했습니다!!!
     "id": 708001,  # robot ID
     "to": user_id,  # user ID
-    "message": "로봇 테스트입니다. 띠디디디-",
+    "message": '',
+    "room": '',
 }
 
 
@@ -50,11 +55,25 @@ class cctv_cmd(Node):
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
         self.local_path_pub = self.create_publisher(Path, 'local_path', 10)
 
+        self.subscription = self.create_subscription(
+            CompressedImage,
+            '/image_jpeg/compressed/cctv',
+            self.img_callback,
+            10)
+
         self.status_msg = TurtlebotStatus()
         self.cmd_msg = Twist()
         self.is_status = False
 
         self.on_mission = False
+    
+    def img_callback(self, msg):
+
+        np_arr = np.frombuffer(msg.data, np.uint8)
+        img_bgr = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+        cv2.imshow("img_bgr2", img_bgr)      
+        cv2.waitKey(1)
 
     def status_callback(self, msg):
         self.status_msg = msg
@@ -130,7 +149,7 @@ def robot_message(data):  # 최초 앱 접속 및 렌더링시 날씨 요청
 @sio.event
 def cctv(data):
     origin = json.loads(data)
-    msg = origin["message"]
+    msg = origin["room"]
     cctv.cctv_control(msg)
 
 

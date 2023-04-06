@@ -158,9 +158,11 @@ class iot_udp(Node):
         status = cmd["status"]
         mode=""
         speed = ""
+        target=""
         if device_name == "air_conditioner" and status == "ON":
             mode = cmd["mode"]
             speed= cmd["speed"]
+            target = cmd["target"]
         elif device_name == "air_cleaner" and status=="ON":
             mode = cmd["mode"]
 
@@ -202,6 +204,7 @@ class iot_udp(Node):
                 if device_name == "air_conditioner" and status == "ON":
                     appliance[room_name][device_name]["mode"] = mode
                     appliance[room_name][device_name]["speed"] = speed
+                    appliance[room_name][device_name]["target"] = target
                 elif device_name == "air_cleaner" and status == "ON":
                     appliance[room_name][device_name]["mode"] = mode
 
@@ -432,16 +435,23 @@ user_id=0
 
 socket_data = {
     "type": "robot",
-    "id": 708001,  # robot ID
+    "id": 708002,  # robot ID
     "to": user_id,  # user ID
-    "message": "로봇 테스트입니다. 띠디디디-",
+    "message": "",
+}
+
+init_data = {
+    "type": "robot",
+    "id": 1708002,  # robot ID
+    "to": user_id,  # user ID
+    "message": "로봇 init",
 }
 
 
 @sio.event
 def connect():
     print('서버에 연결되었습니다.')
-    sio.emit('init_robot', json.dumps(socket_data))
+    sio.emit('init_robot', json.dumps(init_data))
 
 
 @sio.event
@@ -464,6 +474,8 @@ def robot_message(data):
             appliance = json.load(file)
         socket_data["message"] = appliance
         sio.emit('home_status', json.dumps(socket_data))
+
+    print("user_id", str(socket_data["to"]))
 
 @sio.event
 def appliance_status(data): 

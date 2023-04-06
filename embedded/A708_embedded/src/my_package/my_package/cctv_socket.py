@@ -10,11 +10,33 @@ import socketio
 import json
 import numpy as np
 import cv2
+from time import time
+from time import localtime
+import requests
+import json
+import base64
+import socketio
+import os
 
 from nav_msgs.msg import Path
 from ssafy_msgs.msg import TurtlebotStatus
 from geometry_msgs.msg import Pose, PoseStamped, Twist
 from sensor_msgs.msg import CompressedImage
+from . import iot_udp
+
+
+now_time = time()
+now_time=localtime(now_time)
+
+# URL
+url = "https://j8a708.p.ssafy.io/api/v1/log/log-lists"
+
+# headers
+headers = {
+    "Content-Type": "application/json"
+}
+
+logListId = 0  # 이 값이 바뀌지가 않음.. json 파일로 저장해야 할듯
 
 room_point = {
     "living_room": [-6.209,7.678,-54.168],
@@ -34,15 +56,14 @@ act_msg = {
     "entrance": ["현관으로", "현관에"],
 }
 
-user_id=0
+user_id=1
 socket_data = {
     "type": "robot",  # !!!t를 type으로 변경했습니다!!!
-    "id": 708001,  # robot ID
+    "id": 708002,  # robot ID
     "to": user_id,  # user ID
     "message": '',
     "room": '',
 }
-
 
 class cctv_cmd(Node):
 
@@ -61,6 +82,7 @@ class cctv_cmd(Node):
             self.img_callback,
             10)
 
+        self.cnt = 0
         self.status_msg = TurtlebotStatus()
         self.cmd_msg = Twist()
         self.is_status = False
@@ -72,6 +94,71 @@ class cctv_cmd(Node):
         np_arr = np.frombuffer(msg.data, np.uint8)
         img_bgr = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
+        # print(msg.data)
+        video={
+            "id": 708002,
+            "data" : msg.data.tolist()
+        }
+
+        print('emit 비디오 전송 전')  
+
+        socket_data2 = {
+            "type": "robot",  # !!!t를 type으로 변경했습니다!!!
+            "id": 708002,  # robot ID
+            "to": user_id,  # user ID
+            "message": '!!!!!!!!!!!!!!video test!!!!!!!!!!!!',
+        }
+
+        if self.cnt%50==0:
+            # sio.emit('robot_message', json.dumps(socket_data2))
+            sio.emit('video', json.dumps(video))     
+        print('emit 비디오 전송 후') 
+        # sio.emit('video', json.dumps(video))     
+
+        # file_path=os.path.dirname(os.path.realpath(__file__))
+        file_path = os.getcwd() 
+        # print(file_path)
+        if (self.cnt == 100) :
+            cv2.imwrite(file_path+"/img/img_"+str(now_time.tm_year)+str(now_time.tm_mon)+str(now_time.tm_mday)+".PNG", img_bgr)
+
+            picture = ""
+            with open(file_path+"/img/img_"+str(now_time.tm_year)+str(now_time.tm_mon)+str(now_time.tm_mday)+".PNG", "rb") as image_file:
+                image_base64 = base64.b64encode(image_file.read())
+                picture = image_base64.decode('utf-8').replace('+', '-').replace('/', '_')
+
+            mon = str(now_time.tm_mon)
+            day = str(now_time.tm_mday)
+
+            if now_time.tm_mon<10:
+                mon='0'+mon
+            if now_time.tm_mday<10:
+                day='0'+day
+
+            logListDto = {
+                "logDate": str(now_time.tm_year)+"-"+mon+"-"+day,
+                "robotId": 708002,
+                "picture" : str(picture)
+            }
+            print(logListDto)
+
+            data = json.dumps(logListDto)
+            response = requests.post(url=url,data=data,headers=headers)
+
+            print("response: ", response)
+
+            temp = response.json()
+            print(temp)
+            print("logListId: ", temp['logListId'])
+            
+            global logListId
+            logListId = temp['logListId']
+
+            f = open(file_path+"/data/loglistid.txt", 'w')
+            f.write(str(logListId))
+            f.close()
+
+        self.cnt += 1
+    
         cv2.imshow("img_bgr2", img_bgr)      
         cv2.waitKey(1)
 
@@ -126,6 +213,7 @@ class cctv_cmd(Node):
             self.on_mission = False
 
 sio = socketio.Client()
+# sio = iot_udp.sio
 cctv = ''
 
 @sio.event
@@ -145,6 +233,8 @@ def robot_message(data):  # 최초 앱 접속 및 렌더링시 날씨 요청
     origin = json.loads(data)
     user_id = origin["id"]
     socket_data["to"]=user_id
+    print("user_id", str(socket_data["to"]))
+    
 
 @sio.event
 def cctv(data):

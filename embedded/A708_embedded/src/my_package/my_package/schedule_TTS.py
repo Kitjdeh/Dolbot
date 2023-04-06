@@ -18,8 +18,10 @@ import socketio
 
 from gtts import gTTS
 from playsound import playsound
+# from . import iot_udp
 
 sio = socketio.Client()
+# sio=iot_udp.sio
 schedule_info={}
 user_id=0
 
@@ -38,15 +40,22 @@ def speak(text):
 
 socket_data = {
     "type": "robot", # !!!t를 type으로 변경했습니다!!!
-    "id": 708001,  # robot ID
+    "id": 708002,  # robot ID
     "to": user_id,  # user ID
     'message': "robot"
 }      
 
+init_data = {
+    "type": "robot", # !!!t를 type으로 변경했습니다!!!
+    "id": 3708002,  # robot ID
+    "to": user_id,  # user ID
+    'message': "robot"
+}  
+
 @sio.event
 def connect():
     print('서버에 연결되었습니다.')
-    sio.emit('init_robot', json.dumps(socket_data))
+    sio.emit('init_robot', json.dumps(init_data))
 
 @sio.event
 def disconnect():
@@ -57,9 +66,10 @@ def schedule(data):
     global schedule_info
     global user_id
     print('일정 변경 및 삭제 메세지 수신: ', data)
-
+    data = json.loads(data)
     user_id = data["id"]
     t = time.time()
+
     month = localtime(t).tm_mon
     day = localtime(t).tm_mday
 
@@ -127,15 +137,15 @@ class Schedule(Node):
             if now_time.tm_hour == hour and now_time.tm_min == minutes:
                 # on_speak=True, on_control, on_return, on_cctv => False 
                 print(schedule_info[idx]['content'])
-                speak(schedule_info[idx]['content'])
+                speak("어르신, 오늘의 일정은 "+schedule_info[idx]['content']+"입니다.")
                 # on_speak=False
                 idx+=1
             
             if now_time.tm_hour > hour:
-                break
+                continue
 
             if now_time.tm_hour == hour and now_time.tm_min>minutes:
-                break
+                continue
             time.sleep(10)
 
         # for r in self.res:

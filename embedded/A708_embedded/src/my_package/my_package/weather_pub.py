@@ -14,6 +14,7 @@ from nav_msgs.msg import Path
 from ssafy_msgs.msg import EnviromentStatus
 from geometry_msgs.msg import Pose, PoseStamped, Twist
 import os
+# from . import iot_udp
 
 file_path = os.getcwd()+"/appliance.json"
 
@@ -65,7 +66,7 @@ air =0
 environment = ''
 
 before_environment = 'bad'
-
+# sio=iot_udp.sio
 
 class weather_pub(Node):
 
@@ -166,10 +167,23 @@ weather = ''
 is_weather = False
 
 sio = socketio.Client()
+
 user_id=1
 socket_data = {
     "type": "robot",  # !!!t를 type으로 변경했습니다!!!
-    "id": 708001,  # robot ID
+    "id": 708002,  # robot ID
+    "to": user_id,  # user ID
+    "message": {"environment": environment, 
+                "air": air,
+                "out_temp": out_temp, 
+                "out_hum": out_hum,
+                "in_temp": in_temp, "in_hum": in_hum
+                }
+}
+
+init_data = {
+    "type": "robot",  # !!!t를 type으로 변경했습니다!!!
+    "id": 2708002,  # robot ID
     "to": user_id,  # user ID
     "message": {"environment": environment, 
                 "air": air,
@@ -182,7 +196,7 @@ socket_data = {
 @sio.event
 def connect():
     print('서버에 연결되었습니다.')
-    sio.emit('init_robot', json.dumps(socket_data))
+    sio.emit('init_robot', json.dumps(init_data))
 
 
 @sio.event
@@ -207,7 +221,8 @@ def robot_message(data):  # 최초 앱 접속 및 렌더링시 날씨 요청
         else:
             sio.emit('weather_status', json.dumps(socket_data))
         print("emit complete")
-
+    print("robot_message_weather!!!!")
+    print("user_id", str(socket_data["to"]))
 
 
 def main(args=None):

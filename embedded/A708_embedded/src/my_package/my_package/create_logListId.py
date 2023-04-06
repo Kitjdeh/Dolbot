@@ -13,11 +13,14 @@ import json
 import base64
 import socketio
 import os
+from . import iot_udp
 
 now_time = time()
 now_time=localtime(now_time)
 
-sio = socketio.Client()
+# sio = socketio.Client()
+sio=iot_udp.sio
+
 
 # URL
 url = "https://j8a708.p.ssafy.io/api/v1/log/log-lists"
@@ -48,6 +51,7 @@ class IMGParser(Node):
 
         # print(msg.data)
         video={
+            "id" : 708002,
             "data" : msg.data.tolist()
         }
         # sio.emit('video', json.dumps(video))        
@@ -73,7 +77,7 @@ class IMGParser(Node):
 
             logListDto = {
                 "logDate": str(now_time.tm_year)+"-"+mon+"-"+day,
-                "robotId": 708001,
+                "robotId": 708002,
                 "picture" : str(picture)
             }
             print(logListDto)
@@ -102,15 +106,15 @@ class IMGParser(Node):
 
 socket_data = {
     "type": "robot",
-    "id": 708001,  # robot ID
-    "to": 2,  # user ID
+    "id": 708002,  # robot ID
+    "to": 3,  # user ID
 }
 
 def main(args=None):
 
-    sio.connect('https://j8a708.p.ssafy.io/socket')
-    sio.emit('init_robot', json.dumps(socket_data))
-    sio.emit('targeting', json.dumps(socket_data))
+    # sio.connect('https://j8a708.p.ssafy.io/socket')
+    # sio.emit('init_robot', json.dumps(socket_data))
+    # sio.emit('targeting', json.dumps(socket_data))
 
     rclpy.init(args=args)
     image_parser = IMGParser()

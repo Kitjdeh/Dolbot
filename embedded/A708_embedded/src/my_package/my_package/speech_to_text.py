@@ -156,7 +156,7 @@ def answer(input_text):
                     "type": "robot", 
                     "id": 708002,  # robot ID
                     "to": i["userId"],  # user ID
-                    'message': "[비상] 긴급 상황이 발생했습니다."
+                    'message': "[비상] 긴급 상황이 발생하였습니다."
                } 
                sio.emit('emergency', json.dumps(socket_data))
           # socket_data = {

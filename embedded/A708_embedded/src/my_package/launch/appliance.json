@@ -18,7 +18,7 @@
 			]
 		},
 		"tv": {
-			"status": "ON",
+			"status": "OFF",
 			"pose": [
 				-5.201,
 				5.279
@@ -30,14 +30,14 @@
 			"status": "OFF"
 		},
 		"air_conditioner": {
-			"status": "OFF",
+			"status": "ON",
 			"mode": "dry",
 			"speed": "high",
 			"pose": [
 				-10.293,
 				4.805
 			],
-			"target": 18
+			"target": 12
 		},
 		"air_cleaner": {
 			"status": "OFF",
@@ -76,7 +76,7 @@
 			"target": 18
 		},
 		"tv": {
-			"status": "OFF",
+			"status": "ON",
 			"pose": [
 				-3.71,
 				15.236

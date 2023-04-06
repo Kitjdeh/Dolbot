@@ -9,7 +9,7 @@ import struct
 import binascii
 import socketio
 import json
-from time import localtime
+
 from nav_msgs.msg import Path
 from ssafy_msgs.msg import EnviromentStatus
 from geometry_msgs.msg import Pose, PoseStamped, Twist
@@ -144,9 +144,9 @@ class weather_pub(Node):
 
                 self.publish_weather()
                 print("emit!!!")
-                time.time.sleep(10)
+                time.sleep(10)
             else:
-                time.time.sleep(1)
+                time.sleep(1)
 
     def publish_weather(self):
         if self.get_weather == True:
@@ -197,9 +197,7 @@ init_data = {
 def connect():
     print('서버에 연결되었습니다.')
     sio.emit('init_robot', json.dumps(init_data))
-    now_time = time.time()
-    now_time=localtime(now_time)
-    print("cctv_init ", now_time)
+    print("weather_init ")
 
 
 

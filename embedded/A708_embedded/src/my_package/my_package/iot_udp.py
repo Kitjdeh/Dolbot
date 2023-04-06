@@ -175,7 +175,7 @@ class iot_udp(Node):
             self.cmd_msg.linear.x = 0.0
             self.cmd_msg.angular.z = 0.0
             self.cmd_pub.publish(self.cmd_msg)
-            time.sleep(0.5)
+            # time.time.sleep(0.5)
             start_pose = PoseStamped()
             start_pose.pose.position.x = self.status_msg.twist.angular.x
             start_pose.pose.position.y = self.status_msg.twist.angular.y
@@ -198,7 +198,7 @@ class iot_udp(Node):
                 self.cmd_msg.linear.x = 0.0
                 self.cmd_msg.angular.z = 0.0
                 self.cmd_pub.publish(self.cmd_msg)
-                time.sleep(0.5)
+                # time.time.sleep(0.5)
                 print("GOAL")
                 self.connect()
                 self.control()
@@ -255,7 +255,7 @@ class iot_udp(Node):
                 self.cmd_msg.linear.x = 0.0
                 self.cmd_msg.angular.z = 0.0
                 self.cmd_pub.publish(self.cmd_msg)
-                time.time.sleep(0.5)
+                # time.time.sleep(0.5)
                 print("return finish")
                 if self.is_goal:
                     print("go to human")
@@ -479,9 +479,7 @@ init_data = {
 def connect():
     print('서버에 연결되었습니다.')
     sio.emit('init_robot', json.dumps(init_data))
-    now_time = time.time()
-    now_time=localtime(now_time)
-    print("cctv_init ", now_time)
+    print("iot_init ")
 
 
 

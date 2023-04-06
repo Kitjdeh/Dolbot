@@ -2,6 +2,8 @@ import socketio
 import eventlet
 import json
 
+#로봇 정보 등록에서 target 리스트 안만듬 대신 유저가 on 할때 없으면 만듬
+
 users = {}
 robots = {}
 target={}
@@ -41,7 +43,8 @@ def weather_status(sid, data):
     print("weather_status")
     dict = json.loads(data)
     print(data)
-    sio.emit('weather_status', data, to=users[str(dict['to'])])
+    uId = dict['to']
+    sio.emit('weather_status', data, to=users[str(uId)])
 
 # 기기의 제어를 로봇에게 요청하는 함수 FE -> EM
 @sio.event
@@ -49,7 +52,8 @@ def appliance_status(sid, data):
     print("appliance_status")
     dict = json.loads(data)
     print(data)
-    sio.emit('appliance_status', data, to=robots[str(dict['to'])])
+    rId = dict['to']
+    sio.emit('appliance_status', data, to=robots[str(rId + 1000000)])
 
 # 집의 기기들의 상태를 유저에게 전달하는 함수 EM -> FE
 @sio.event
@@ -65,7 +69,8 @@ def schedule(sid, data):
     print("schedule")
     dict = json.loads(data)
     print(data)
-    sio.emit('schedule',data, to=robots[str(dict['to'])])
+    rId = dict['to']
+    sio.emit('schedule',data, to=robots[str(rId + 3000000)])
 
 # 제어 일정 응급에 대한 알림 메시지 EM -> FE
 @sio.event
@@ -92,9 +97,10 @@ def user_message(sid, data):  # sid는 socket의 id
     print("user_message")
     print(data)
     dict = json.loads(data)
+    rId = dict['to']
     
-    users[str(dict['id'])] = sid
-    sio.emit('robot_message', data, to=robots[str(dict['to'])])
+    for i in range(4):
+        sio.emit('robot_message', data, to=robots[str(rId + (i * 1000000))])
 
 # 유저가 CCTV 화면을 킴
 @sio.event
@@ -107,10 +113,10 @@ def cctv_on(sid,data):
     if robotId not in target:
         print("등록" + robotId)
         target[robotId] = []
-    
     if userId in target[robotId]:
         return
     target[robotId].append(userId)
+    print(target)
 
 # 유저가 CCTV 화면을 끔
 @sio.event
@@ -124,14 +130,14 @@ def cctv_off(sid,data):
 
 # 로봇이 CCTV를 킨 유저들에게 영상을 송출
 @sio.event
-def video(sid,data): 
+def video(sid,data):    
+    print("video") 
     dict = json.loads(data)
-    print("video")
-    print(target)
+    print(target[str(dict['id'])])
     if str(dict['id']) not in target:
         return
     for i in target[str(dict['id'])]:
-        print(users[i])
+        users[i]
         sio.emit('video',data, to=users[i])
 
 #cctv 조작

@@ -420,12 +420,16 @@ class iot_udp(Node):
                 key_now_status='True'
             elif key_status=='True':
                 key_now_status='False'
+                t.raise_exception()
             print("이전 : ", key_status)
             print('현재 : ', key_now_status)
 
             f2 = open(file_path+"/data/key_status.txt", 'w')
             f2.write(key_now_status)
             f2.close()
+            
+            t = threading.Thread(target=speech_to_text.speechToText)
+            t.start()
 
 
 iot = ''

@@ -12,9 +12,11 @@ from playsound import playsound
 import threading
 import time
 import json
+import socketio
 
 import os
 from . import iot_udp
+import requests
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/TTS/vibrant-period-381607-92ab31325bad.json"
 
@@ -29,6 +31,9 @@ cmd = {'room': 'living_room', 'device': 'tv', 'status': 'OFF','mode': '','speed'
 
 key_status=''
 file_path = os.getcwd()
+
+sio = socketio.Client()
+sio.connect('https://j8a708.p.ssafy.io/socket')
 
 appliances = {
     "living_room": {  # 거실 (조명/에어컨/TV)
@@ -122,6 +127,7 @@ def speak(text):
 
      if os.path.exists(filename):
           os.remove(filename)
+ 
 
 # 대답
 def answer(input_text):
@@ -141,6 +147,25 @@ def answer(input_text):
      
      elif '살려 줘' in input_text or '살려 조' in input_text or '살려 저' in input_text or '도와 줘' in input_text or '살려줘' in input_text or '살려조' in input_text or '살려저' in input_text or '도와줘' in input_text:
           speak('어르신, 괜찮으세요? 보호자님께 긴급 알람을 보낼게요.')
+
+          res = requests.get('https://j8a708.p.ssafy.io/api/v1/user-homes/users/708002')
+          res = res.json()
+
+          for i in res:
+               socket_data = {
+                    "type": "robot", 
+                    "id": 708002,  # robot ID
+                    "to": i["userId"],  # user ID
+                    'message': "[비상] 긴급 상황이 발생했습니다."
+               } 
+               sio.emit('emergency', json.dumps(socket_data))
+          # socket_data = {
+          #      "type": "robot", 
+          #      "id": 708002,  # robot ID
+          #      "to": 4,  # user ID
+          #      'message': "robot"
+          # } 
+          # sio.emit('emergency', json.dumps(socket_data))
      
      elif '종료' in input_text:
           speak('듣기를 종료합니다')

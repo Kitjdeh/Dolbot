@@ -49,4 +49,10 @@ def generate_launch_description():
         #     node_executable='cctv',
         #     node_name='cctv'
         # ),
+        # Node(
+        #     package='my_package',
+        #     node_executable='follow',
+        #     node_name='follow'
+        # ), 
+        # follow는 실행 XXXXXXX
     ])

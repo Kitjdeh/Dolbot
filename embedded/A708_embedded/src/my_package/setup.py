@@ -31,6 +31,7 @@ setup(
             'weather_pub = my_package.weather_pub:main',
             'cctv = my_package.cctv_socket:main',
             'cctv_test = my_package.cctv_test:main',
+            'follow = my_package.auto_follow:main'
         ],
     },
 )

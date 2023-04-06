@@ -8,9 +8,9 @@
 			]
 		},
 		"air_conditioner": {
-			"status": "OFF",
-			"target": 46,
-			"mode": "warm",
+			"status": "ON",
+			"target": 8,
+			"mode": "cool",
 			"speed": "high",
 			"pose": [
 				-2.733,
@@ -18,7 +18,7 @@
 			]
 		},
 		"tv": {
-			"status": "OFF",
+			"status": "ON",
 			"pose": [
 				-5.201,
 				5.279

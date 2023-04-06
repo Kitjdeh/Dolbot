@@ -56,6 +56,10 @@ init_data = {
 def connect():
     print('서버에 연결되었습니다.')
     sio.emit('init_robot', json.dumps(init_data))
+    now_time = time()
+    now_time=localtime(now_time)
+    print("cctv_init ", now_time)
+
 
 @sio.event
 def disconnect():
@@ -83,7 +87,8 @@ def schedule(data):
     # res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+'2023-03-23')
     res = requests.get('https://j8a708.p.ssafy.io/api/v1/schedule-info/1?localDate='+today)
     res = res.json()
-    schedule_info = res 
+    schedule_info = res
+    print(res) 
 
 class Schedule(Node):
    
@@ -120,7 +125,7 @@ class Schedule(Node):
         idx=0
         while True:
 
-            if idx==len(schedule_info):
+            if idx>=len(schedule_info):
                 break
 
             now_time = time.time()
@@ -141,11 +146,14 @@ class Schedule(Node):
                 # on_speak=False
                 idx+=1
             
-            if now_time.tm_hour > hour:
+            if now_time.tm_hour < hour:
+                idx+=1
                 continue
 
             if now_time.tm_hour == hour and now_time.tm_min>minutes:
+                idx+=1
                 continue
+
             time.sleep(10)
 
         # for r in self.res:

@@ -220,7 +220,9 @@ cctv = ''
 def connect():
     print('서버에 연결되었습니다.')
     sio.emit('init_robot', json.dumps(socket_data))
-
+    now_time = time()
+    now_time=localtime(now_time)
+    print("cctv_init ", now_time)
 
 @sio.event
 def disconnect():

@@ -1,0 +1,6 @@
+backend/A708_backend_db/MYSQL/res/
+embedded/A708_embedded/build
+embedded/A708_embedded/install
+embedded/A708_embedded/log
+data/certbot
+./init-letsencrypt.sh

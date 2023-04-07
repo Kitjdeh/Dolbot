@@ -10,6 +10,7 @@ import socketio
 import json
 import numpy as np
 import cv2
+from time import time
 from time import localtime
 import requests
 import json
@@ -24,7 +25,7 @@ from sensor_msgs.msg import CompressedImage
 from . import iot_udp
 
 
-now_time = time.time()
+now_time = time()
 now_time=localtime(now_time)
 
 # URL
@@ -64,6 +65,13 @@ socket_data = {
     "room": '',
 }
 
+init_data = {  # chan: cctv 프리셋 수정
+    "type": "robot",
+    "id": 4708002,  # robot ID
+    "to": user_id,  # user ID
+    "message": "로봇 init",
+}
+
 class cctv_cmd(Node):
 
     def __init__(self):
@@ -74,6 +82,8 @@ class cctv_cmd(Node):
             TurtlebotStatus, '/turtlebot_status', self.status_callback, 10)
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
         self.local_path_pub = self.create_publisher(Path, 'local_path', 10)
+        self.goal_sub = self.create_subscription(
+            PoseStamped, '/goal_pose2', self.goal_callback, 1)
 
         self.subscription = self.create_subscription(
             CompressedImage,
@@ -85,8 +95,15 @@ class cctv_cmd(Node):
         self.status_msg = TurtlebotStatus()
         self.cmd_msg = Twist()
         self.is_status = False
+        self.is_goal = False
 
         self.on_mission = False
+    def goal_callback(self, msg):
+
+        if self.is_goal == False:
+            self.elder_pose = msg
+        self.is_goal = True
+        print("human:",msg)
     
     def img_callback(self, msg):
 
@@ -167,7 +184,26 @@ class cctv_cmd(Node):
 
     def cctv_control(self, room_name):
         global socket_data
+        print("cctv on")
         if room_name == "auto":
+            if self.is_goal: #chanyo : cctv auto 모드 구현
+                self.goal_pub.publish(self.elder_pose)
+            while not (self.elder_pose.pose.position.x-0.1 <= self.status_msg.twist.angular.x <= self.elder_pose.pose.position.x+0.1) or not (self.elder_pose.pose.position.y-0.1 <= self.status_msg.twist.angular.y <= self.elder_pose.pose.position.y+0.1):
+                continue
+            self.cmd_msg.linear.x = 0.0
+            self.cmd_msg.angular.z = 0.0
+            self.cmd_pub.publish(self.cmd_msg)
+            while not(self.elder_pose.pose.orientation.w-1<=self.status_msg.twist.linear.z<=self.elder_pose.pose.orientation.w+1):
+                print("not yet")
+                turn_angle = self.elder_pose.pose.orientation.w-self.status_msg.twist.linear.z
+                if turn_angle == 0:
+                    break
+                elif abs(turn_angle)>180 :
+                    self.cmd_msg.angular.z = 0.3 * turn_angle/abs(turn_angle)
+                else:
+                    self.cmd_msg.angular.z = -0.3 *turn_angle/abs(turn_angle)
+                self.cmd_msg.linear.x = 0.0
+                self.cmd_pub.publish(self.cmd_msg)
             socket_data["message"] = "보호대상자를 관찰중입니다"
             sio.emit('robot_message', json.dumps(socket_data))
             print("auto")
@@ -213,20 +249,22 @@ class cctv_cmd(Node):
 
 sio = socketio.Client()
 # sio = iot_udp.sio
-cctv = ''
+cctv_app = ''
 
 @sio.event
 def connect():
     print('서버에 연결되었습니다.')
-    sio.emit('init_robot', json.dumps(socket_data))
-    print("cctv_init ")
+    sio.emit('init_robot', json.dumps(init_data))
+    now_time = time()
+    now_time=localtime(now_time)
+    print("cctv_init ", now_time)
 
 @sio.event
 def disconnect():
     print('서버와의 연결이 끊어졌습니다.')
 
 @sio.event
-def robot_message(data):  # 최초 앱 접속 및 렌더링시 날씨 요청
+def robot_message(data):
     global socket_data
     global user_id
     origin = json.loads(data)
@@ -237,18 +275,23 @@ def robot_message(data):  # 최초 앱 접속 및 렌더링시 날씨 요청
 
 @sio.event
 def cctv(data):
+    global socket_data
+    global user_id
     origin = json.loads(data)
+    print(origin)
     msg = origin["room"]
-    cctv.cctv_control(msg)
+    user_id = origin["id"]  # chan: cctv소켓에서도 user_id 받음
+    socket_data["to"]=user_id
+    cctv_app.cctv_control(msg)
 
 
 def main(args=None):
     sio.connect('https://j8a708.p.ssafy.io/socket')
     rclpy.init(args=args)
-    global cctv
-    cctv = cctv_cmd()
-    rclpy.spin(cctv)
-    cctv.destroy_node()
+    global cctv_app
+    cctv_app = cctv_cmd()
+    rclpy.spin(cctv_app)
+    cctv_app.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':

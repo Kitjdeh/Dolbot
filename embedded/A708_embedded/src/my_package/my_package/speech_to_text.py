@@ -156,7 +156,7 @@ def answer(input_text):
                     "type": "robot", 
                     "id": 708002,  # robot ID
                     "to": i["userId"],  # user ID
-                    'message': "[비상] 긴급 상황이 발생하였습니다."
+                    'message': "[비상] 긴급 상황이 발생했습니다."
                } 
                sio.emit('emergency', json.dumps(socket_data))
           # socket_data = {
@@ -365,7 +365,16 @@ def listen_print_loop(responses):
           with open(file_path+ "/appliance.json", 'r') as file:
                appliances = json.load(file)
 
-          if not result.is_final:
+          key_status=''
+          f1 = open(file_path+"/data/key_status.txt", 'r') # chan: txt파일 읽어오기
+          key_status = f1.read() 
+          f1.close()
+
+          if key_status == 'False':  #chan: txt파일에서 읽은값이 false면 종료하기
+               stt_flag=False
+               break
+
+          elif not result.is_final:
                sys.stdout.write(transcript + overwrite_chars + "\r")
                sys.stdout.flush()
 
@@ -384,6 +393,10 @@ def listen_print_loop(responses):
 
                if re.search(r"\b(종료)\b", transcript, re.I):
                     print("Exiting..")
+                    stt_flag=False
+                    f2 = open(file_path+"/data/key_status.txt", 'w') #chan: 종료라고 말할때 txt파일도 수정
+                    f2.write("False")
+                    f2.close()
                     break
 
                num_chars_printed = 0

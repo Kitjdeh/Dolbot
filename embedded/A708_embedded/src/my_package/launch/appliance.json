@@ -9,9 +9,9 @@
 		},
 		"air_conditioner": {
 			"status": "ON",
-			"target": 8,
-			"mode": "cool",
-			"speed": "high",
+			"target": 24,
+			"mode": "warm",
+			"speed": "mid",
 			"pose": [
 				-2.733,
 				4.525
@@ -30,18 +30,18 @@
 			"status": "OFF"
 		},
 		"air_conditioner": {
-			"status": "ON",
-			"mode": "dry",
-			"speed": "high",
+			"status": "OFF",
+			"mode": "cool",
+			"speed": "mid",
 			"pose": [
 				-10.293,
 				4.805
 			],
-			"target": 12
+			"target": 18
 		},
 		"air_cleaner": {
 			"status": "OFF",
-			"mode": "high",
+			"mode": "mid",
 			"pose": [
 				-11.981,
 				5.979
@@ -54,7 +54,7 @@
 		},
 		"air_cleaner": {
 			"status": "OFF",
-			"mode": "high",
+			"mode": "mid",
 			"pose": [
 				-3.702,
 				12.064
@@ -76,7 +76,7 @@
 			"target": 18
 		},
 		"tv": {
-			"status": "ON",
+			"status": "OFF",
 			"pose": [
 				-3.71,
 				15.236

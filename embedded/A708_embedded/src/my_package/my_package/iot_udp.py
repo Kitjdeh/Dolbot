@@ -175,7 +175,7 @@ class iot_udp(Node):
             self.cmd_msg.linear.x = 0.0
             self.cmd_msg.angular.z = 0.0
             self.cmd_pub.publish(self.cmd_msg)
-            # time.time.sleep(0.5)
+            time.sleep(0.5)
             start_pose = PoseStamped()
             start_pose.pose.position.x = self.status_msg.twist.angular.x
             start_pose.pose.position.y = self.status_msg.twist.angular.y
@@ -198,7 +198,7 @@ class iot_udp(Node):
                 self.cmd_msg.linear.x = 0.0
                 self.cmd_msg.angular.z = 0.0
                 self.cmd_pub.publish(self.cmd_msg)
-                # time.time.sleep(0.5)
+                time.sleep(0.5)
                 print("GOAL")
                 self.connect()
                 self.control()
@@ -251,19 +251,27 @@ class iot_udp(Node):
                 self.is_drive = True
             
                 while not (start_pose.pose.position.x-0.1 <= self.status_msg.twist.angular.x <= start_pose.pose.position.x+0.1) or not (start_pose.pose.position.y-0.1 <= self.status_msg.twist.angular.y <= start_pose.pose.position.y+0.1):
+                    if self.is_goal: #chan: 복귀중 객체 추종
+                        print("go to human")
+                        self.goal_pub.publish(self.elder_pose)
+                        print(self.elder_pose)
+                        while not (self.elder_pose.pose.position.x-0.1 <= self.status_msg.twist.angular.x <= self.elder_pose.pose.position.x+0.1) or not (self.elder_pose.pose.position.y-0.1 <= self.status_msg.twist.angular.y <= self.elder_pose.pose.position.y+0.1):
+                            continue
+                        self.is_goal = False
+                        break
                     continue
                 self.cmd_msg.linear.x = 0.0
                 self.cmd_msg.angular.z = 0.0
                 self.cmd_pub.publish(self.cmd_msg)
-                # time.time.sleep(0.5)
+                time.sleep(0.5) #chan: follow 안되게 하던 버그 수정
                 print("return finish")
                 if self.is_goal:
                     print("go to human")
                     self.goal_pub.publish(self.elder_pose)
                     print(self.elder_pose)
-                    self.is_goal = False
                     while not (self.elder_pose.pose.position.x-0.1 <= self.status_msg.twist.angular.x <= self.elder_pose.pose.position.x+0.1) or not (self.elder_pose.pose.position.y-0.1 <= self.status_msg.twist.angular.y <= self.elder_pose.pose.position.y+0.1):
                         continue
+                    self.is_goal = False
                     self.cmd_msg.linear.x = 0.0
                     self.cmd_msg.angular.z = 0.0
                     self.cmd_pub.publish(self.cmd_msg)
@@ -275,7 +283,15 @@ class iot_udp(Node):
             with open(file_path+ "/appliance.json", 'w', encoding='utf-8') as file:
                 json.dump(appliance, file, indent="\t")
         else:
-            print("already ", status)
+            if device_name == "air_conditioner" and status == "ON":
+                appliance[room_name][device_name]["mode"] = mode
+                appliance[room_name][device_name]["speed"] = speed
+                appliance[room_name][device_name]["target"] = target
+            elif device_name == "air_cleaner" and status == "ON":
+                appliance[room_name][device_name]["mode"] = mode
+            with open(file_path+ "/appliance.json", 'w', encoding='utf-8') as file:
+                json.dump(appliance, file, indent="\t")
+        print("already ", status)
 
     def goal_callback(self, msg):
 
@@ -439,20 +455,25 @@ class iot_udp(Node):
             f1.close()
            
             key_now_status=''
-            if key_status=='False':
+            if key_status=='False': # chan: 스페이스바를 누를때 켜짐/ 상태 즉각 저장
                 key_now_status='True'
+                f2 = open(file_path+"/data/key_status.txt", 'w')
+                f2.write(key_now_status)
+                f2.close()
+                t = threading.Thread(target=speech_to_text.speechToText)
+                t.start()
             elif key_status=='True':
                 key_now_status='False'
-                t.raise_exception()
+                f2 = open(file_path+"/data/key_status.txt", 'w')
+                f2.write(key_now_status)
+                f2.close()
             print("이전 : ", key_status)
             print('현재 : ', key_now_status)
 
-            f2 = open(file_path+"/data/key_status.txt", 'w')
-            f2.write(key_now_status)
-            f2.close()
+            # f2 = open(file_path+"/data/key_status.txt", 'w')
+            # f2.write(key_now_status)
+            # f2.close()
             
-            t = threading.Thread(target=speech_to_text.speechToText)
-            t.start()
 
 
 iot = ''
@@ -479,7 +500,9 @@ init_data = {
 def connect():
     print('서버에 연결되었습니다.')
     sio.emit('init_robot', json.dumps(init_data))
-    print("iot_init ")
+    now_time = time.time()
+    now_time=localtime(now_time)
+    print("cctv_init ", now_time)
 
 
 

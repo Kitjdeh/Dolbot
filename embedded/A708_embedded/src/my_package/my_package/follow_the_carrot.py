@@ -8,6 +8,8 @@ from nav_msgs.msg import Odometry, Path, OccupancyGrid
 from math import pi, cos, sin, sqrt, atan2, radians
 import numpy as np
 
+yy =[0,0,1,-1] # chan: 90도 +y방향 0도 +x 방향
+xx =[1,-1,0,0]
 
 class followTheCarrot(Node):
 
@@ -54,8 +56,25 @@ class followTheCarrot(Node):
                     y = self.status_msg.twist.angular.y
                     now_cell = self.pose_to_grid_cell(x,y)
                     if self.grid[now_cell[1]][now_cell[0]] > 75:
-                        self.cmd_msg.linear.x = -0.5
-                        self.cmd_msg.angular.z = 0.0
+                        angle = self.status_msg.twist.linear.z # chan: 충돌시 벽 위치 파악
+                        front_cell_x = now_cell[0]
+                        front_cell_y = now_cell[1]
+                        if 45<=angle<135:
+                            front_cell_y += 1
+                        elif -45<=angle<45:
+                            front_cell_x += 1
+                        elif -135<= angle <-45:
+                            front_cell_y -= 1
+                        else:
+                            front_cell_x -= 1
+                        if self.grid[front_cell_y][front_cell_x] >75:
+                            self.cmd_msg.linear.x = -0.5
+                            self.cmd_msg.angular.z = 0.0
+                            print("front is wall")
+                        else:
+                            self.cmd_msg.linear.x = 0.5
+                            self.cmd_msg.angular.z = 0.0
+                            print("back is wall")
                         self.cmd_pub.publish(self.cmd_msg)
                         return
                     

@@ -56,7 +56,9 @@ init_data = {
 def connect():
     print('서버에 연결되었습니다.')
     sio.emit('init_robot', json.dumps(init_data))
-    print("cctv_init ")
+    now_time = time.time()
+    now_time=localtime(now_time)
+    print("cctv_init ", now_time)
 
 
 @sio.event
@@ -119,10 +121,9 @@ class Schedule(Node):
 
     def tts(self):
         global schedule_info
-
         idx=0
         while True:
-
+            # print(schedule_info)
             if idx>=len(schedule_info):
                 break
 
@@ -144,7 +145,7 @@ class Schedule(Node):
                 # on_speak=False
                 idx+=1
             
-            if now_time.tm_hour < hour:
+            if now_time.tm_hour > hour:
                 idx+=1
                 continue
 

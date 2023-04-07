@@ -450,7 +450,7 @@ class following(Node) :
                 return_p.header.frame_id = 'map'
                 return_p.pose.position.x = self.finalPoint[0]
                 return_p.pose.position.y = self.finalPoint[1]
-                return_p.pose.orientation.w =0.8
+                return_p.pose.orientation.w =self.status_msg.twist.linear.z
                 if self.is_map == True:
                     if self.is_grid_update == False:
                         self.grid_update()

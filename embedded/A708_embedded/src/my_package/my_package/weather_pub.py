@@ -9,7 +9,6 @@ import struct
 import binascii
 import socketio
 import json
-
 from nav_msgs.msg import Path
 from ssafy_msgs.msg import EnviromentStatus
 from geometry_msgs.msg import Pose, PoseStamped, Twist
@@ -197,9 +196,7 @@ init_data = {
 def connect():
     print('서버에 연결되었습니다.')
     sio.emit('init_robot', json.dumps(init_data))
-    print("weather_init ")
-
-
+    
 
 @sio.event
 def disconnect():

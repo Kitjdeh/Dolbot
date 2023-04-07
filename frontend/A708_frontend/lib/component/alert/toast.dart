@@ -46,3 +46,39 @@ void toast(context, text) {
         );
       });
 }
+
+void emergency(context, text) {
+  final fToast = FToast();
+  fToast.init(context);
+  Widget toast = Container(
+    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+    width: 320,
+    height: 60,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(8.0),
+      color: Colors.red[300],
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Icon(Icons.check, color: Colors.white),
+        SizedBox(width: 10),
+        Text(text, style: TextStyle(color: Colors.white)),
+      ],
+    ),
+  );
+  fToast.showToast(
+      child: toast,
+      toastDuration: Duration(seconds: 5),
+      positionedToastBuilder: (context, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned(
+              child: child,
+              top: 100,
+            ),
+          ],
+        );
+      });
+}

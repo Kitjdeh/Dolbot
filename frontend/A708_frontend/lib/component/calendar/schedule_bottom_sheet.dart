@@ -75,10 +75,10 @@ class _SchedulBottomSheetState extends State<SchedulBottomSheet> {
         });
 
         // print('${selectedday.runtimeType}');
-        // print('${SelectedTime!.runtimeType}');
+        print('${SelectedTime!.hour}');
         print(SelectedTime!.minute);
         ymdtController.text = '${dateTime.toString().split(' ')[0]} $hour:$min';
-        // print('${ymdtController.text}');
+        print('${ymdtController.text}');
       }
     }
   }
@@ -172,6 +172,7 @@ class _SchedulBottomSheetState extends State<SchedulBottomSheet> {
     //모든 state를 다  동시에 validate  진행한다.
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
+
       DateTime outputDateTime2 = DateTime(
         SelectedTime!.year,
         SelectedTime!.month,
@@ -180,12 +181,16 @@ class _SchedulBottomSheetState extends State<SchedulBottomSheet> {
         SelectedTime!.minute, // Minute
         0, // Second
         0, // Millisecond
-      ).toUtc();
+      );
+      // print('selectedTime${SelectedTime!} / ${SelectedTime.runtimeType}');
+      // print('yearMonthDayTime${yearMonthDayTime.runtimeType}');
+      // print('아웃풋데이트타임2${outputDateTime2.toString()}');
 
       String formattedDateTime = outputDateTime2.toIso8601String();
-      formattedDateTime =
-          formattedDateTime.replaceFirst(RegExp(r'Z$'), '+09:00');
-      print(formattedDateTime);
+      // formattedDateTime =
+      //     formattedDateTime.replaceFirst(RegExp(r'Z$'), '+09:00');
+      formattedDateTime = formattedDateTime.toString() + '+09:00';
+      print('포메티트데이트타임$formattedDateTime');
       DateFormat outputDateFormat = DateFormat("yyyy-MM-dd");
       String startdate = outputDateFormat.format(SelectedTime!);
       String enddate = startdate;
@@ -199,7 +204,7 @@ class _SchedulBottomSheetState extends State<SchedulBottomSheet> {
         "content": Content,
         "homeId": homeId
       };
-      print(data);
+      // print(data);
       // print(data);
       postSchedule(data);
       Navigator.of(context).pop();

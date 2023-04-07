@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class MainAppliance extends StatefulWidget {
-  const MainAppliance({Key? key}) : super(key: key);
+  int? air;
+  Map<dynamic, dynamic>? aplicancestatus;
+  MainAppliance({this.aplicancestatus, this.air, Key? key}) : super(key: key);
 
   @override
   State<MainAppliance> createState() => _MainApplianceState();
@@ -21,8 +23,8 @@ Map<dynamic, dynamic>? _applianceData;
 class _MainApplianceState extends State<MainAppliance>
     with TickerProviderStateMixin {
   late final TabController controller;
-  StreamSocket streamSocket = StreamSocket();
-  IO.Socket? socket;
+  // StreamSocket streamSocket = StreamSocket();
+  // IO.Socket? socket;
   List<Widget> tabbarBody = []; // 클래스 멤버 변수로 변경
 
   // List<Map<String, dynamic>>
@@ -30,40 +32,23 @@ class _MainApplianceState extends State<MainAppliance>
   String _selectindex = "0";
   Map<dynamic, dynamic>? _cachedApplianceData;
 
-  @override
-  void initState() {
-    super.initState();
-    // Connect to the socket server
-    IO.Socket socket = IO.io('http://j8a708.p.ssafy.io:8081',
-        IO.OptionBuilder().setTransports(['websocket']).build());
-    socket.on('home_status', (data) {
-      print('홈 데이터 도착');
-      var Data = jsonDecode(data);
-      print(Data);
-      Map applianceData = Data['message'];
-      if (!_appliancestatus.isClosed && mounted && applianceData != null) {
-        _appliancestatus.add(applianceData!);
-        setState(() {
-          _cachedApplianceData = applianceData; // 캐시 업데이트
-        });
-      };
-      toast(context, '집안 데이터가 갱신되었습니다.');
-    });
-  }
-
-  @override
-  void dispose() {
-    socket?.disconnect();
-    socket = null;
-    _appliancestatus.close();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   if (socket != null) {
+  //     socket!.disconnect();
+  //   }
+  //   _appliancestatus.close();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
     // 캐시된 데이터 사용
-    if (_cachedApplianceData != null) {
-      _applianceData = _cachedApplianceData;
+    if (widget.aplicancestatus != null) {
+      _appliancestatus.add(widget.aplicancestatus!);
+      setState(() {
+        _applianceData = widget.aplicancestatus;
+      });
     }
 
     return DefaultTabController(
@@ -98,14 +83,14 @@ class _MainApplianceState extends State<MainAppliance>
         body: StreamBuilder<Map<dynamic, dynamic>>(
             stream: _appliancestatus.stream,
             builder: (context, snapshot) {
-              print('tttt;$_applianceData');
+              // print('tttt;$_applianceData');
               // print('stream$snapshot');
               if (_applianceData != null) {
-                print('////');
                 return TabBarView(
                   children: _applianceData!.entries
                       .map((entry) => renderCount(entry.key, entry.value))
                       .toList(),
+                  physics: NeverScrollableScrollPhysics(),
                   // _applianceData!.values
                   //     .map((value) => renderCount((value)))
                   //     .toList(),
@@ -119,7 +104,8 @@ class _MainApplianceState extends State<MainAppliance>
                                 child: Text(
                               e,
                             )))
-                        .toList());
+                        .toList(),
+                    physics: NeverScrollableScrollPhysics());
               }
             }),
       ),
@@ -132,11 +118,10 @@ class _MainApplianceState extends State<MainAppliance>
   //     .toList(),
   // List<MapEntry<dynamic, dynamic>> S = e.entries.toList();
   Widget renderCount(String key, Map<String, dynamic> data) {
-    print('data데이터${data}e');
     String roomname = key;
     return GridView.count(
       crossAxisCount: 2,
-      childAspectRatio: 1.0,
+      childAspectRatio: 1.1,
       // shrinkWrap: true,
       // scrollDirection: Axis.vertical,
       children: data!.entries
@@ -204,6 +189,7 @@ class _MainApplianceState extends State<MainAppliance>
                         context: context,
                         builder: (_) {
                           return AirCleaner(
+                            air: widget.air ?? 0,
                             room: room,
                             mode: mode,
                           );
@@ -219,42 +205,48 @@ class _MainApplianceState extends State<MainAppliance>
                 color: onoff == 'ON' ? Colors.blue[100] : Colors.grey[300],
               ),
               // height: height == null ? 300 : height,
-
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SwitchStream(
-                          onoff: onoff,
-                          title: title,
-                          img: img,
-                          index: index,
-                          room: room,
-                          mode: mode,
-                          speed: speed,
-                          target: target,
-                        )
-                      ],
+                    SizedBox(
+                      height: 20,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            SwitchStream(
+                              air: widget.air ?? 0,
+                              onoff: onoff,
+                              title: title,
+                              img: img,
+                              index: index,
+                              room: room,
+                              mode: mode,
+                              speed: speed,
+                              target: target,
+                            )
+                          ],
+                        ),
+                      ),
                     ),
                     Container(
                         decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(100)),
                         child: SizedBox(
-                            height: 110,
-                            width: 110,
+                            height: 100,
+                            width: 100,
                             child: Image.asset(
                               'asset/img/$img.png',
                             ))),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
                       child: Row(
                         children: [
                           Text(
-                            '$title',
+                            title_name['${title}'] ?? '',
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w700,
@@ -296,8 +288,10 @@ class SwitchStream extends StatelessWidget {
   final String mode;
   final String speed;
   final int target;
+  final int air;
   const SwitchStream(
       {required this.onoff,
+      required this.air,
       required this.title,
       required this.img,
       required this.index,
@@ -321,6 +315,7 @@ class SwitchStream extends StatelessWidget {
               context: context,
               builder: (_) {
                 return AirCleaner(
+                  air: air ?? 0,
                   room: room,
                   mode: mode,
                 );
@@ -339,8 +334,8 @@ class SwitchStream extends StatelessWidget {
         } else {
           Map<String, dynamic> A = {
             'type': 'user',
-            'id': 1,
-            'to': 708001,
+            'id': 4,
+            'to': 708002,
             'message': {
               'room': room,
               'device': title,
@@ -348,7 +343,7 @@ class SwitchStream extends StatelessWidget {
             }
           };
           String test = jsonEncode(A);
-          SendMessage(test);
+          SendMessage('appliance_status', test);
           print(test);
         }
 
@@ -387,3 +382,9 @@ class SwitchStream extends StatelessWidget {
 //   RoomInfo(title: '조명', img: 'asset/img/light.png', ONOFF: true, index: 2),
 //   RoomInfo(title: 'TV', img: 'asset/img/tv.png', ONOFF: true, index: 3),
 // ];
+const Map<String, String> title_name = {
+  'air_conditioner': '에어컨',
+  'light': '전등',
+  'tv': 'tv',
+  'air_cleaner': '공기청정기'
+};

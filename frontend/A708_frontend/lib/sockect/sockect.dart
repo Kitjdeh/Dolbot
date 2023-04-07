@@ -49,10 +49,10 @@ void connectAndListen(message) {
   // print('${streamSocket.addResponse}');
 }
 
-void SendMessage(message) {
+void SendMessage(status,message) {
   IO.Socket socket = IO.io('http://j8a708.p.ssafy.io:8081',
       IO.OptionBuilder().setTransports(['websocket']).build());
-  socket.emit('appliance_status', message);
+  socket.emit(status, message);
   print('send success');
 }
 
@@ -62,6 +62,12 @@ Map<String, dynamic> toJson = {
   'to': 708001,
   'message': 'connect'
 };
+// void SendNewMessage(status,message) {
+//   IO.Socket socket = IO.io('http://j8a708.p.ssafy.io:8081',
+//       IO.OptionBuilder().setTransports(['websocket']).build());
+//   socket.emit(status, message);
+//   print('send success');
+// }
 
 String jsonString = jsonEncode(toJson);
 String jStr = "{ 't' : 'user', 'id' : 1, 'to' : 1, 'message' : 'appHello'  }";

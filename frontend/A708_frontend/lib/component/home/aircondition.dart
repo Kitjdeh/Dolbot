@@ -8,6 +8,8 @@ import 'dart:io';
 
 Map<String, int> power = {'low': 0, 'middle': 1, 'high': 2};
 Map<String, int> Mode = {'low': 0, 'middle': 1, 'high': 2};
+List<bool> isSelectedMode = [false, false, false];
+List<bool> isSelectedPower = [false, false, false];
 
 class AirCondition extends StatefulWidget {
   AirCondition(
@@ -26,34 +28,31 @@ class AirCondition extends StatefulWidget {
 }
 
 class _AirConditionState extends State<AirCondition> {
-  List<bool> isSelectedMode = [false, false, false];
-  List<bool> isSelectedPower = [false, false, false];
-
   @override
   Widget build(BuildContext context) {
     int power_num = power[widget.speed] ?? 0;
     int mode_num = Mode[widget.mode] ?? 0;
-    isSelectedMode[mode_num] = true;
-    isSelectedPower[power_num] = true;
+    // isSelectedMode[mode_num] = true;
+    // isSelectedPower[power_num] = true;
 
-    for (int idx = 0; idx < isSelectedMode.length; idx++) {
-      if (idx == power_num) {
-        isSelectedPower[idx] = true;
-      } else {
-        isSelectedPower[idx] = false;
-      }
-      if (idx == mode_num) {
-        isSelectedMode[idx] = true;
-      } else {
-        isSelectedMode[idx] = false;
-      }
-    }
-
+    // for (int idx = 0; idx < isSelectedMode.length; idx++) {
+    //   if (idx == power_num) {
+    //     isSelectedPower[idx] = true;
+    //   } else {
+    //     isSelectedPower[idx] = false;
+    //   }
+    //   if (idx == mode_num) {
+    //     isSelectedMode[idx] = true;
+    //   } else {
+    //     isSelectedMode[idx] = false;
+    //   }
+    // }
+    print('1111$isSelectedMode , ${mode_num} ,${widget.mode}');
     return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -65,11 +64,14 @@ class _AirConditionState extends State<AirCondition> {
           ),
           Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100),
-              image: new DecorationImage(
-                  image: new AssetImage('asset/img/weather_snow.gif'),
-                  fit: BoxFit.none),
-            ),
+                borderRadius: BorderRadius.circular(100),
+                image: new DecorationImage(
+                    image: widget.mode == 'cool'
+                        ? new AssetImage('asset/img/weather_snow.gif')
+                        : widget.mode == 'warm'
+                            ? new AssetImage('asset/img/weather_hot.gif')
+                            : new AssetImage('asset/img/weather_fog.gif'),
+                    fit: BoxFit.cover)),
             child: SleekCircularSlider(
               appearance: CircularSliderAppearance(
                   customWidths: CustomSliderWidths(),
@@ -132,6 +134,9 @@ class _AirConditionState extends State<AirCondition> {
                           isSelectedMode[buttonIndex] = false;
                         }
                       }
+                      print(isSelectedMode);
+                      // _isSelectedMode = isSelectedMode;
+                      mode_num = index;
                     });
                   },
                   children: [Text('냉방'), Text('난방'), Text('제습')],
@@ -175,33 +180,36 @@ class _AirConditionState extends State<AirCondition> {
                   },
                   children: [Text('약풍'), Text('중풍'), Text('강풍')],
                 ),
-                ElevatedButton(
-                    onPressed: () {
-                      Map<String, dynamic> A = {
-                        'type': 'user',
-                        'id': 1,
-                        'to': 708001,
-                        'message': {
-                          'room': widget.room,
-                          'device': 'air_conditioner',
-                          'status': 'ON',
-                          "mode": widget.mode,
-                          "speed": widget.speed,
-                          "target": widget.target
-                        }
-                      };
-                      String message = jsonEncode(A);
-                      SendMessage(message);
-                      toast(context, '기기 명령이 전달되었습니다.');
-                      print(message);
-                    },
-                    child: Text('작동'))
               ],
             ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                  onPressed: () {
+                    Map<String, dynamic> A = {
+                      'type': 'user',
+                      'id': 4,
+                      'to': 708002,
+                      'message': {
+                        'room': widget.room,
+                        'device': 'air_conditioner',
+                        'status': 'ON',
+                        "mode": widget.mode,
+                        "speed": widget.speed,
+                        "target": widget.target
+                      }
+                    };
+                    String message = jsonEncode(A);
+                    SendMessage('appliance_status', message);
+                    toast(context, '기기 명령이 전달되었습니다.');
+                    print(message);
+                  },
+                  child: Text('작동')),
+            ],
           )
-        ],
-      ),
-    );
+        ]));
   }
 }
 

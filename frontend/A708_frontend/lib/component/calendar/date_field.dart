@@ -105,9 +105,9 @@ class _YearMonthPickerState extends State<YearMonthPicker> {
 
     _fKey.currentState!.save();
 
-    print('year: $year, month: $month');
-    print('year-month-day: $yearMonthDay');
-    print('year-month-day-time: $yearMonthDayTime');
+    // print('year: $year, month: $month');
+    // print('year-month-day: $yearMonthDay');
+    // print('year-month-day-time: $yearMonthDayTime');
   }
 
   @override

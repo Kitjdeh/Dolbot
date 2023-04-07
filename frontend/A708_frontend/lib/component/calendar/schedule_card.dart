@@ -50,9 +50,9 @@ class _Time extends StatelessWidget {
       color: Colors.blue,
       fontSize: 16.0,
     );
-    final formattedTime = DateFormat('HH:mm').format(startTime);
-    print('${formattedTime}formattedTime');
-    print(startTime);
+    final formattedTime = DateFormat("HH:mm").format(startTime);
+    // print('${formattedTime}formattedTime');
+    // print(startTime);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -9,9 +9,10 @@ Map<String, int> numbering = {'low': 0, 'middle': 1, 'high': 2};
 class AirCleaner extends StatefulWidget {
   String mode;
   String room;
+  int air;
 
-
-  AirCleaner({required this.mode, required this.room, Key? key})
+  AirCleaner(
+      {required this.air, required this.mode, required this.room, Key? key})
       : super(key: key);
 
   @override
@@ -19,9 +20,7 @@ class AirCleaner extends StatefulWidget {
 }
 
 class _AirCleanerState extends State<AirCleaner> {
-
   List<bool> isSelectedMode = [false, false, false];
-
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +33,7 @@ class _AirCleanerState extends State<AirCleaner> {
         children: [
           Text(
             '공기정청기',
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           ),
           Container(
             width: 250,
@@ -56,16 +55,33 @@ class _AirCleanerState extends State<AirCleaner> {
               children: [
                 Text('상태',
                     style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                 Container(
                     width: MediaQuery.of(context).size.height / 5,
                     decoration:
                         BoxDecoration(borderRadius: BorderRadius.circular(100)),
-                    child: Image.asset('asset/img/smile.gif')),
-                Text(
-                  '좋아요',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
-                )
+                    child: widget.air > 80
+                        ? Image.asset('asset/img/smile.gif')
+                        : widget.air > 50
+                            ? Image.asset('asset/img/normal.gif')
+                            : Image.asset('asset/img/angry.gif')),
+                widget.air > 80
+                    ? Text(
+                        '좋아요',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w700),
+                      )
+                    : widget.air > 50
+                        ? Text(
+                            '보통',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.w700),
+                          )
+                        : Text(
+                            '나빠요',
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.w700),
+                          ),
               ],
             ),
           ),
@@ -84,9 +100,7 @@ class _AirCleanerState extends State<AirCleaner> {
                 onPressed: (int index) {
                   setState(() {
                     print(index);
-                    for (int buttonIndex = 0;
-                        buttonIndex < 3;
-                        buttonIndex++) {
+                    for (int buttonIndex = 0; buttonIndex < 3; buttonIndex++) {
                       if (buttonIndex == index) {
                         isSelectedMode[buttonIndex] = true;
                         if (buttonIndex == 0) {
@@ -110,8 +124,8 @@ class _AirCleanerState extends State<AirCleaner> {
               onPressed: () {
                 Map<String, dynamic> A = {
                   'type': 'user',
-                  'id': 1,
-                  'to': 708001,
+                  'id': 4,
+                  'to': 708002,
                   'message': {
                     'room': widget.room,
                     'device': 'air_cleaner',
@@ -120,7 +134,7 @@ class _AirCleanerState extends State<AirCleaner> {
                   }
                 };
                 String message = jsonEncode(A);
-                SendMessage(message);
+                SendMessage('appliance_status', message);
                 toast(context, '기기 명령이 전달되었습니다.');
               },
               child: Text('작동'))

@@ -1,6 +1,7 @@
 import 'package:dolbot/screen/calendar_screen.dart';
 import 'package:dolbot/screen/cctv_screen.dart';
 import 'package:dolbot/screen/home_screen.dart';
+import 'package:dolbot/component/log/daily_log.dart';
 import 'package:dolbot/screen/log_screen.dart';
 import 'package:dolbot/screen/menu_screen.dart';
 import 'package:flutter/material.dart';
@@ -27,10 +28,10 @@ const TABS = [
   TabInfo(icon: Icons.camera_indoor, label: 'CCTV', location: 'CctvScreen'),
   TabInfo(icon: Icons.menu, label: '메뉴', location: 'MenuScreen'),
 ];
-final WIDGETS = [
-  HomeScreen(),
-  CalendarScreen(),
-  LogScreen(),
-  CctvScreen(),
-  MenuScreen()
-];
+// final WIDGETS = [
+//   HomeScreen(),
+//   CalendarScreen(),
+//   LogScreen(),
+//   CctvScreen(),
+//   MenuScreen()
+// ];

@@ -67,7 +67,8 @@ Widget LogBox({
               Expanded(
                 child: Container(
                   child: type == '가전'
-                      ? Text('${location} ${onoff.toString()}',
+                      ? Text(
+                          '${location} ${applianceName} ${onoff.toString() == true ? '켜졌습니다.' : '꺼졌습니다.'}',
                           style: TextStyle(fontSize: 15))
                       : type == '일정'
                           ? Text('${content}', style: TextStyle(fontSize: 15))

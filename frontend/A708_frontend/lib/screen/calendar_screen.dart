@@ -120,7 +120,8 @@ class _ScheduleList extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final todayschedule = snapshot.data![index];
                   DateTime datetime = DateTime.fromMillisecondsSinceEpoch(
-                      todayschedule.scheduleTime!);
+                      todayschedule.scheduleTime! ,isUtc: true).add(Duration(hours: 9));
+                  print('datetime ${datetime} ${todayschedule.scheduleId}/// ${todayschedule.scheduleTime!}');
                   return Dismissible(
                     key: ObjectKey(todayschedule.scheduleId),
                     direction: DismissDirection.endToStart,

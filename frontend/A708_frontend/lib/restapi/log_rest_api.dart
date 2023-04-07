@@ -4,8 +4,7 @@ import 'package:http/http.dart' as http;
 
 Future<Log> getLog(date) async {
   final response = await http.get(
-      Uri.parse('https://j8a708.p.ssafy.io/api/v1/log/logs/1?localDate=$date'));
-
+      Uri.parse('https://j8a708.p.ssafy.io/api/v1/log/logs/2?localDate=$date'));
   if (response.statusCode == 200) {
     // Log dataList = jsonDecode(utf8.decode(response.bodyBytes));
     // print(dataList);
@@ -13,7 +12,7 @@ Future<Log> getLog(date) async {
     final decodedBody = utf8.decode(response.bodyBytes);
     return Log.fromJson(jsonDecode(decodedBody));
   } else {
-    throw Exception('로그가 없습니다.');
+    throw Exception('해당일에는 로그가 없습니다.');
   }
 }
 

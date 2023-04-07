@@ -1,15 +1,19 @@
+import 'dart:convert';
+
+import 'package:dolbot/sockect/sockect.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 
 class CctvManualView extends StatelessWidget {
-  const CctvManualView({Key? key}) : super(key: key);
+  int user;
+  int robotnumber;
+  CctvManualView({required this.user, required this.robotnumber, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    List<int> roomNumber = [0, 1, 2, 3];
-
     return Container(
-      decoration: BoxDecoration(color: Colors.red),
+      decoration: BoxDecoration(color: Colors.blue[200]),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -18,11 +22,21 @@ class CctvManualView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               RoomButton(
-                RoomNumber: 0,
+                roomid: 'living_room',
+                roomname: '거실',
+                user: user,
+                robotnumber: robotnumber,
               ),
               RoomButton(
-                RoomNumber: 1,
-              )
+                  roomid: 'inner_room',
+                  roomname: '안방',
+                  user: user,
+                  robotnumber: robotnumber),
+              RoomButton(
+                  roomid: 'library',
+                  roomname: '서재',
+                  user: user,
+                  robotnumber: robotnumber)
             ],
           ),
           SizedBox(
@@ -32,11 +46,20 @@ class CctvManualView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               RoomButton(
-                RoomNumber: 2,
-              ),
+                  roomid: 'small_room',
+                  roomname: '작은방',
+                  user: user,
+                  robotnumber: robotnumber),
               RoomButton(
-                RoomNumber: 3,
-              )
+                  roomid: 'entrance',
+                  roomname: '현관',
+                  user: user,
+                  robotnumber: robotnumber),
+              RoomButton(
+                  roomid: 'kitchen',
+                  roomname: '주방',
+                  user: user,
+                  robotnumber: robotnumber)
             ],
           ),
         ],
@@ -45,43 +68,42 @@ class CctvManualView extends StatelessWidget {
   }
 }
 
-class RoomButton extends StatefulWidget {
-  final int RoomNumber;
+class RoomButton extends StatelessWidget {
+  final String roomid;
+  final String roomname;
+  final int user;
+  final int robotnumber;
   const RoomButton({
-    required this.RoomNumber,
+    required this.user,
+    required this.robotnumber,
+    required this.roomname,
+    required this.roomid,
   });
 
-  @override
-  State<RoomButton> createState() => _RoomButtonState();
-}
-
-class _RoomButtonState extends State<RoomButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 100,
       child: ElevatedButton(
-          onPressed: () {
-            setState(() {
-              for (var i = 0; i < 4; i++) {
-                i == widget.RoomNumber
-                    ? selectedroom[i] = !selectedroom[i]
-                    : selectedroom[i] = false;
-              }
-            });
+          onPressed: () async {
+            Map<String, dynamic> data = {
+              'type': 'user',
+              'id': user,
+              'to': 708002,
+              'message': '',
+              'room': roomid,
+            };
+            String message = jsonEncode(data);
+            print(message);
+            SendMessage('cctv', message);
           },
-          style: ElevatedButton.styleFrom(
-              backgroundColor: selectedroom[widget.RoomNumber] == true
-                  ? Colors.blue[200]
-                  : Colors.grey),
           child: Text(
-            '${roomName[widget.RoomNumber]}',
+            '$roomname',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           )),
     );
   }
 }
-
 List<bool> selectedroom = [false, false, false, false];
 List<String> roomName = ['안방', '거실', '화장실', '방1'];
 int? selectednumber;

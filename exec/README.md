@@ -52,10 +52,22 @@
 - ./init-letsencrypt.sh 명령어로 실행
 - 실행 이후 sudo docker comopse down으로 실행된 container들 종료
 
-### SSL 실행
+### 실행
 
 - sudo docker compose build 로 도커 이미지 빌드
 - sudo docker compose up 명령으로 실행
+
+### 계정 및 정의 파일 목록
+
+    1. SSL 인증서 발급을 위한 실행 파일 ./init-letsencrypt.sh
+    2. spring boot 서버를 위한 ./backend/A708_backend_spring/src/main/resources/application.properties
+    3. 도커 컴포즈 파일 ./docker-compose.yml
+    4. 도커 파일들 
+    - ./backend/A708_backend_spring/Dockerfile
+    - ./backend/A708_backend_proxyserver/Dockerfile
+    - ./backend/A708_backend_db/MYSQL/Dockerfile
+
+    5. mysql ID: A708 PW: A708
 
 ### DB 덤프 파일
 
